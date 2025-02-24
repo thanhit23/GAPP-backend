@@ -1,0 +1,16 @@
+version: "3"
+services:
+  mysql:
+    image: mysql
+    container_name: mysql
+    restart: always
+
+    ports:
+      # <Port exposed> : < MySQL Port running inside container>
+      # default is:
+      #- '3306:3306'
+      - '${DB_PORT}:${DB_PORT}'
+    volumes:
+      - .docker/mysql:/var/lib/mysql
+    env_file:
+      - .env
