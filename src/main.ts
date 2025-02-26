@@ -19,6 +19,7 @@ import { AppModule } from './app.module.ts';
 import { HttpExceptionFilter } from './filters/bad-request.filter.ts';
 import { QueryFailedFilter } from './filters/query-failed.filter.ts';
 import { TranslationInterceptor } from './interceptors/translation-interceptor.service.ts';
+import { TransformResponseInterceptor } from './interceptors/transform-response.interceptor.service.ts';
 import { setupSwagger } from './setup-swagger.ts';
 import { ApiConfigService } from './shared/services/api-config.service.ts';
 import { TranslationService } from './shared/services/translation.service.ts';
@@ -50,6 +51,7 @@ export async function bootstrap(): Promise<NestExpressApplication> {
     new TranslationInterceptor(
       app.select(SharedModule).get(TranslationService),
     ),
+    new TransformResponseInterceptor()
   );
 
   app.useGlobalPipes(

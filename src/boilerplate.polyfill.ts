@@ -1,37 +1,15 @@
-import _ from 'lodash';
 import type { ObjectLiteral } from 'typeorm';
 import { Brackets, SelectQueryBuilder } from 'typeorm';
 
 import type { AbstractEntity } from './common/abstract.entity';
-import type { AbstractDto } from './common/dto/abstract.dto';
-import type { CreateTranslationDto } from './common/dto/create-translation.dto';
-import { PageDto } from './common/dto/page.dto.ts';
 import { PageMetaDto } from './common/dto/page-meta.dto.ts';
 import type { PageOptionsDto } from './common/dto/page-options.dto';
-import type { LanguageCode } from './constants/language-code';
 import type { KeyOfType } from './types';
 
 declare global {
   export type Uuid = string & { _uuidBrand: undefined };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-redundant-type-constituents
   export type Todo = any & { _todoBrand: undefined };
-
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  interface Array<T> {
-    toDtos<Dto extends AbstractDto>(this: T[], options?: unknown): Dto[];
-
-    getByLanguage(
-      this: CreateTranslationDto[],
-      languageCode: LanguageCode,
-    ): string;
-
-    toPageDto<Dto extends AbstractDto>(
-      this: T[],
-      pageMetaDto: PageMetaDto,
-      // FIXME make option type visible from entity
-      options?: unknown,
-    ): PageDto<Dto>;
-  }
 }
 
 declare module 'typeorm' {
@@ -96,29 +74,6 @@ declare module 'typeorm' {
     ): this;
   }
 }
-
-Array.prototype.toDtos = function <
-  Entity extends AbstractEntity<Dto>,
-  Dto extends AbstractDto,
->(options?: unknown): Dto[] {
-  return _.compact(
-    _.map<Entity, Dto>(this as Entity[], (item) =>
-      item.toDto(options as never),
-    ),
-  );
-};
-
-Array.prototype.getByLanguage = function (languageCode: LanguageCode): string {
-  return this.find((translation) => languageCode === translation.languageCode)!
-    .text;
-};
-
-Array.prototype.toPageDto = function (
-  pageMetaDto: PageMetaDto,
-  options?: unknown,
-) {
-  return new PageDto(this.toDtos(options), pageMetaDto);
-};
 
 SelectQueryBuilder.prototype.searchByString = function (
   q,

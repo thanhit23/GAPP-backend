@@ -1,31 +1,20 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
-
 import { AbstractDto } from '../../../common/dto/abstract.dto.ts';
-import {
-  DynamicTranslate,
-  StaticTranslate,
-} from '../../../decorators/translate.decorator.ts';
+import { StringField } from '../../../decorators/field.decorators.ts';
 import type { PostEntity } from '../post.entity.ts';
-import { PostTranslationDto } from './post-translation.dto.ts';
 
 export class PostDto extends AbstractDto {
-  @ApiPropertyOptional()
-  @DynamicTranslate()
-  title?: string;
+  @StringField()
+  title!: string;
 
-  @ApiPropertyOptional()
-  description?: string;
+  @StringField()
+  description!: string;
 
-  @ApiPropertyOptional()
-  @StaticTranslate()
-  info: string;
-
-  @ApiPropertyOptional({ type: PostTranslationDto, isArray: true })
-  declare translations?: PostTranslationDto[];
-
-  constructor(postEntity: PostEntity) {
-    super(postEntity);
-
-    this.info = 'keywords.admin';
+  constructor(post: PostEntity) {
+    super(post);
+    this.id = post.id;
+    this.title = post.title;
+    this.description = post.description || '';
+    this.createdAt = post.createdAt;
+    this.updatedAt = post.updatedAt;
   }
 }
