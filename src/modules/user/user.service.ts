@@ -1,80 +1,45 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import type { FindOptionsWhere } from 'typeorm';
-import { Repository } from 'typeorm';
-import { Transactional } from 'typeorm-transactional';
 
 import type { PageDto } from '../../common/dto/page.dto.ts';
 import { UserNotFoundException } from '../../exceptions/user-not-found.exception.ts';
 import { UserRegisterDto } from '../auth/dto/user-register.dto.ts';
-import type { UserDto } from './dtos/user.dto.ts';
 import type { UsersPageOptionsDto } from './dtos/users-page-options.dto.ts';
 import { UserEntity } from './user.entity.ts';
+import { ExistedException } from '../../exceptions/existed.exception.ts';
+import { UserRepository } from './user.repository.ts';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(UserEntity)
-    private userRepository: Repository<UserEntity>,
+    private readonly userRepository: UserRepository,
   ) {}
 
-  /**
-   * Find single user
-   */
   findOne(findData: FindOptionsWhere<UserEntity>): Promise<UserEntity | null> {
-    return this.userRepository.findOneBy(findData);
+    return this.userRepository.findOne(findData);
   }
 
-  findByUsernameOrEmail(
-    options: Partial<{ username: string; email: string }>,
-  ): Promise<UserEntity | null> {
-    const queryBuilder = this.userRepository.createQueryBuilder('user');
-
-    if (options.email) {
-      queryBuilder.orWhere('user.email = :email', {
-        email: options.email,
-      });
-    }
-
-    if (options.username) {
-      queryBuilder.orWhere('user.username = :username', {
-        username: options.username,
-      });
-    }
-
-    return queryBuilder.getOne();
-  }
-
-  @Transactional()
   async createUser(userRegisterDto: UserRegisterDto): Promise<UserEntity> {
-    const user = this.userRepository.create(userRegisterDto);
-console.log('user=====', user);
+    const userExits = await this.userRepository.findByOption({ email: userRegisterDto.email, username: userRegisterDto.username });
 
-    await this.userRepository.save(user);
+    if (userExits) {
+      throw new ExistedException('User already exists');
+    }
 
-    return user;
+    return await this.userRepository.createUser(userRegisterDto);
   }
 
-  async getUsers(
-    pageOptionsDto: UsersPageOptionsDto,
-  ): Promise<PageDto<UserDto>> {
-    const queryBuilder = this.userRepository.createQueryBuilder('user');
-    const [items, pageMetaDto] = await queryBuilder.paginate(pageOptionsDto);
-
-    return items.toPageDto(pageMetaDto);
+  async getUsers(pageOptionsDto: UsersPageOptionsDto): Promise<PageDto<UserEntity>> {
+    return await this.userRepository.getUsers(pageOptionsDto);
   }
 
-  async getUser(userId: Uuid): Promise<UserDto> {
-    const queryBuilder = this.userRepository.createQueryBuilder('user');
-
-    queryBuilder.where('user.id = :userId', { userId });
-
-    const userEntity = await queryBuilder.getOne();
+  async getUser(userId: Uuid): Promise<UserEntity | null> {
+    const userEntity = this.userRepository.getUser(userId);
 
     if (!userEntity) {
       throw new UserNotFoundException();
     }
 
-    return userEntity.toDto();
+    return userEntity;
   }
 }

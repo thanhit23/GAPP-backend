@@ -1,10 +1,9 @@
-import { CreateTranslationDto } from '../../../common/dto/create-translation.dto.ts';
-import { TranslationsField } from '../../../decorators/field.decorators.ts';
+import { StringField } from '../../../decorators/field.decorators.ts';
 
 export class CreatePostDto {
-  @TranslationsField({ type: CreateTranslationDto })
-  title!: CreateTranslationDto[];
+  @StringField()
+  title!: string;
 
-  @TranslationsField({ type: CreateTranslationDto })
-  description!: CreateTranslationDto[];
+  @StringField()
+  description!: string;
 }

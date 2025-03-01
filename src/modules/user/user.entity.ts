@@ -3,12 +3,11 @@ import { Column, Entity, OneToMany } from 'typeorm';
 import { AbstractEntity } from '../../common/abstract.entity.ts';
 import { UseDto } from '../../decorators/use-dto.decorator.ts';
 import { PostEntity } from '../post/post.entity.ts';
-import type { UserDtoOptions } from './dtos/user.dto.ts';
 import { UserDto } from './dtos/user.dto.ts';
 
 @Entity({ name: 'users' })
 @UseDto(UserDto)
-export class UserEntity extends AbstractEntity<UserDto, UserDtoOptions> {
+export class UserEntity extends AbstractEntity {
   @Column({ unique: true, nullable: true, type: 'varchar' })
   email!: string | null;
 
@@ -30,6 +29,6 @@ export class UserEntity extends AbstractEntity<UserDto, UserDtoOptions> {
   @Column({ nullable: true, type: 'varchar' })
   bio!: string | null;
 
-  @OneToMany(() => PostEntity, (postEntity) => postEntity.user)
+  @OneToMany(() => PostEntity, (post) => post.user)
   posts?: PostEntity[];
 }

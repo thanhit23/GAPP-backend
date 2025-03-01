@@ -1,51 +1,35 @@
 import { Injectable } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 
-import type { PageDto } from '../../common/dto/page.dto.ts';
-import { CreatePostCommand } from './commands/create-post.command.ts';
-import { CreatePostDto } from './dtos/create-post.dto.ts';
-import type { PostDto } from './dtos/post.dto.ts';
-import type { PostPageOptionsDto } from './dtos/post-page-options.dto.ts';
-import type { UpdatePostDto } from './dtos/update-post.dto.ts';
-import { PostNotFoundException } from './exceptions/post-not-found.exception.ts';
 import { PostEntity } from './post.entity.ts';
+import { PostRepository } from './post.repository.ts';
+import { CreatePostDto } from './dtos/create-post.dto.ts';
+import { PostNotFoundException } from './exceptions/post-not-found.exception.ts';
+
+import type { PostDto } from './dtos/post.dto.ts';
+import type { PageDto } from '../../common/dto/page.dto.ts';
+import type { UpdatePostDto } from './dtos/update-post.dto.ts';
+import type { PostPageOptionsDto } from './dtos/post-page-options.dto.ts';
 
 @Injectable()
 export class PostService {
   constructor(
-    @InjectRepository(PostEntity)
-    private postRepository: Repository<PostEntity>,
-    private commandBus: CommandBus,
+    private postRepository: PostRepository,
   ) {}
 
   @Transactional()
   createPost(userId: Uuid, createPostDto: CreatePostDto): Promise<PostEntity> {
-    return this.commandBus.execute<CreatePostCommand, PostEntity>(
-      new CreatePostCommand(userId, createPostDto),
-    );
+    return this.postRepository.createPost(userId, createPostDto);
   }
 
   async getAllPost(
     postPageOptionsDto: PostPageOptionsDto,
   ): Promise<PageDto<PostDto>> {
-    const queryBuilder = this.postRepository
-      .createQueryBuilder('post')
-      .leftJoinAndSelect('post.translations', 'postTranslation');
-    const [items, pageMetaDto] =
-      await queryBuilder.paginate(postPageOptionsDto);
-
-    return items.toPageDto(pageMetaDto);
+    return await this.postRepository.getAllPost(postPageOptionsDto);
   }
 
   async getSinglePost(id: Uuid): Promise<PostEntity> {
-    const queryBuilder = this.postRepository
-      .createQueryBuilder('post')
-      .where('post.id = :id', { id });
-
-    const postEntity = await queryBuilder.getOne();
+    const postEntity = await this.postRepository.getSinglePost(id)
 
     if (!postEntity) {
       throw new PostNotFoundException();
@@ -54,33 +38,27 @@ export class PostService {
     return postEntity;
   }
 
-  async updatePost(id: Uuid, updatePostDto: UpdatePostDto): Promise<void> {
-    const queryBuilder = this.postRepository
-      .createQueryBuilder('post')
-      .where('post.id = :id', { id });
-
-    const postEntity = await queryBuilder.getOne();
+  async updatePost(id: Uuid, updatePostDto: UpdatePostDto): Promise<boolean> {
+    const postEntity = await this.postRepository.getSinglePost(id)
 
     if (!postEntity) {
       throw new PostNotFoundException();
     }
 
-    this.postRepository.merge(postEntity, updatePostDto);
+    await this.postRepository.updatePost(postEntity, updatePostDto)
 
-    await this.postRepository.save(updatePostDto);
+    return true;
   }
 
-  async deletePost(id: Uuid): Promise<void> {
-    const queryBuilder = this.postRepository
-      .createQueryBuilder('post')
-      .where('post.id = :id', { id });
-
-    const postEntity = await queryBuilder.getOne();
+  async deletePost(id: Uuid): Promise<boolean> {
+    const postEntity = await this.postRepository.getSinglePost(id)
 
     if (!postEntity) {
       throw new PostNotFoundException();
     }
 
-    await this.postRepository.remove(postEntity);
+    await this.postRepository.deletePost(postEntity);
+
+    return true;
   }
 }

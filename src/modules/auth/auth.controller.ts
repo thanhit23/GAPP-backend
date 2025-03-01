@@ -19,6 +19,7 @@ import { AuthService } from './auth.service.ts';
 import { LoginPayloadDto } from './dto/login-payload.dto.ts';
 import { UserLoginDto } from './dto/user-login.dto.ts';
 import { UserRegisterDto } from './dto/user-register.dto.ts';
+import { GetMeTransformer, LoginTransformer, RegisterTransformer } from '../../transformer/auth.transformer.ts';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -36,7 +37,7 @@ export class AuthController {
   })
   async userLogin(
     @Body() userLoginDto: UserLoginDto,
-  ): Promise<LoginPayloadDto> {
+  ): Promise<LoginTransformer> {
     const userEntity = await this.authService.validateUser(userLoginDto);
 
     const token = await this.authService.createAccessToken({
@@ -44,18 +45,16 @@ export class AuthController {
       role: RoleType.USER,
     });
 
-    return new LoginPayloadDto(userEntity.toDto(), token);
+    return new LoginTransformer({ user: userEntity, token });
   }
 
   @Post('register')
   @HttpCode(HttpStatus.OK)
   @ApiOkResponse({ type: UserDto, description: 'Successfully Registered' })
-  async userRegister(@Body() userRegisterDto: UserRegisterDto): Promise<UserDto> {
+  async userRegister(@Body() userRegisterDto: UserRegisterDto): Promise<RegisterTransformer> {
     const createdUser = await this.userService.createUser(userRegisterDto);
 
-    return createdUser.toDto({
-      isActive: true,
-    });
+    return new RegisterTransformer({ ...createdUser, isActive: true })
   }
 
   @Version('1')
@@ -63,7 +62,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Auth([RoleType.USER, RoleType.ADMIN])
   @ApiOkResponse({ type: UserDto, description: 'current user info' })
-  getCurrentUser(@AuthUser() user: UserEntity): UserDto {
-    return user.toDto();
+  getCurrentUser(@AuthUser() user: UserEntity): GetMeTransformer {
+    return new GetMeTransformer(user);
   }
 }

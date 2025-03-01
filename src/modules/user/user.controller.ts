@@ -52,7 +52,7 @@ export class UserController {
   getUsers(
     @Query(new ValidationPipe({ transform: true }))
     pageOptionsDto: UsersPageOptionsDto,
-  ): Promise<PageDto<UserDto>> {
+  ): Promise<PageDto<UserEntity>> {
     return this.userService.getUsers(pageOptionsDto);
   }
 
@@ -64,7 +64,7 @@ export class UserController {
     description: 'Get users list',
     type: UserDto,
   })
-  getUser(@UUIDParam('id') userId: Uuid): Promise<UserDto> {
+  getUser(@UUIDParam('id') userId: Uuid): Promise<UserEntity | null> {
     return this.userService.getUser(userId);
   }
 }
