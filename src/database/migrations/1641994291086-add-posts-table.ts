@@ -7,59 +7,58 @@ export class AddPostsTable1641994291086 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: "posts",
+        name: 'Posts',
         columns: [
           {
-            name: "title",
-            type: "varchar",
-            length: "225",
+            name: 'title',
+            type: 'varchar',
+            length: '225',
           },
           {
-            name: "description",
-            type: "varchar",
-            length: "225",
+            name: 'description',
+            type: 'varchar',
+            length: '225',
           },
           {
-            name: "image",
-            type: "varchar",
-            length: "255",
+            name: 'image',
+            type: 'varchar',
+            length: '255',
           },
           {
-            name: "user_id",
-            type: "char",
-            length: "36",
+            name: 'user_id',
+            type: 'char',
+            length: '36',
             isNullable: false,
           },
           {
-            name: "created_at",
-            type: "timestamp",
-            default: "CURRENT_TIMESTAMP",
+            name: 'created_at',
+            type: 'timestamp',
+            default: 'CURRENT_TIMESTAMP',
             isNullable: false,
           },
           {
-            name: "updated_at",
-            type: "timestamp",
-            default: "CURRENT_TIMESTAMP",
+            name: 'updated_at',
+            type: 'timestamp',
+            default: 'CURRENT_TIMESTAMP',
             isNullable: false,
           },
         ],
       }),
-      true
+      true,
     );
 
     await queryRunner.createForeignKey(
-      "posts",
+      'Posts',
       new TableForeignKey({
-        columnNames: ["user_id"],
-        referencedColumnNames: ["id"],
-        referencedTableName: "Users",
-        onDelete: "CASCADE",
-      })
+        columnNames: ['user_id'],
+        referencedColumnNames: ['id'],
+        referencedTableName: 'Users',
+        onDelete: 'CASCADE',
+      }),
     );
   }
 
-
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query('DROP TABLE "posts"');
+    await queryRunner.query('DROP TABLE "Posts"');
   }
 }

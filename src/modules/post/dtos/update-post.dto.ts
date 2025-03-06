@@ -7,4 +7,3 @@ export class UpdatePostDto {
   @StringFieldOptional()
   description!: string;
 }
-

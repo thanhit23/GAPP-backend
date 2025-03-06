@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { CommandBus } from '@nestjs/cqrs';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 
 import { PostEntity } from './post.entity.ts';
 import { CreatePostDto } from './dtos/create-post.dto.ts';
-import { CreatePostCommand } from './commands/create-post.command.ts';
 
 import type { PostDto } from './dtos/post.dto.ts';
 import type { PageDto } from '../../common/dto/page.dto.ts';
@@ -18,14 +16,18 @@ export class PostRepository {
   constructor(
     @InjectRepository(PostEntity)
     private postRepository: Repository<PostEntity>,
-    private commandBus: CommandBus,
   ) {}
 
   @Transactional()
-  createPost(userId: Uuid, createPostDto: CreatePostDto): Promise<PostEntity> {
-    return this.commandBus.execute<CreatePostCommand, PostEntity>(
-      new CreatePostCommand(userId, createPostDto),
-    );
+  async createPost(
+    userId: Uuid,
+    createPostDto: CreatePostDto,
+  ): Promise<PostEntity> {
+    const postEntity = this.postRepository.create({ userId, ...createPostDto });
+
+    await this.postRepository.save(postEntity);
+
+    return postEntity;
   }
 
   async getAllPost(
@@ -46,7 +48,10 @@ export class PostRepository {
     return await queryBuilder.getOne();
   }
 
-  async updatePost(postEntity: PostEntity, updatePostDto: UpdatePostDto): Promise<void> {
+  async updatePost(
+    postEntity: PostEntity,
+    updatePostDto: UpdatePostDto,
+  ): Promise<void> {
     const newPost = this.postRepository.merge(postEntity, updatePostDto);
 
     await this.postRepository.save(newPost);
