@@ -13,9 +13,7 @@ import type { PostPageOptionsDto } from './dtos/post-page-options.dto.ts';
 
 @Injectable()
 export class PostService {
-  constructor(
-    private postRepository: PostRepository,
-  ) {}
+  constructor(private postRepository: PostRepository) {}
 
   @Transactional()
   createPost(userId: Uuid, createPostDto: CreatePostDto): Promise<PostEntity> {
@@ -29,7 +27,7 @@ export class PostService {
   }
 
   async getSinglePost(id: Uuid): Promise<PostEntity> {
-    const postEntity = await this.postRepository.getSinglePost(id)
+    const postEntity = await this.postRepository.getSinglePost(id);
 
     if (!postEntity) {
       throw new PostNotFoundException();
@@ -39,19 +37,19 @@ export class PostService {
   }
 
   async updatePost(id: Uuid, updatePostDto: UpdatePostDto): Promise<boolean> {
-    const postEntity = await this.postRepository.getSinglePost(id)
+    const postEntity = await this.postRepository.getSinglePost(id);
 
     if (!postEntity) {
       throw new PostNotFoundException();
     }
 
-    await this.postRepository.updatePost(postEntity, updatePostDto)
+    await this.postRepository.updatePost(postEntity, updatePostDto);
 
     return true;
   }
 
   async deletePost(id: Uuid): Promise<boolean> {
-    const postEntity = await this.postRepository.getSinglePost(id)
+    const postEntity = await this.postRepository.getSinglePost(id);
 
     if (!postEntity) {
       throw new PostNotFoundException();

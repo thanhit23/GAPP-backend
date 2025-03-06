@@ -11,16 +11,17 @@ import { UserRepository } from './user.repository.ts';
 
 @Injectable()
 export class UserService {
-  constructor(
-    private readonly userRepository: UserRepository,
-  ) {}
+  constructor(private readonly userRepository: UserRepository) {}
 
   findOne(findData: FindOptionsWhere<UserEntity>): Promise<UserEntity | null> {
     return this.userRepository.findOne(findData);
   }
 
   async createUser(userRegisterDto: UserRegisterDto): Promise<UserEntity> {
-    const userExits = await this.userRepository.findByOption({ email: userRegisterDto.email, username: userRegisterDto.username });
+    const userExits = await this.userRepository.findByOption({
+      email: userRegisterDto.email,
+      username: userRegisterDto.username,
+    });
 
     if (userExits) {
       throw new ExistedException('User already exists');
@@ -29,7 +30,9 @@ export class UserService {
     return await this.userRepository.createUser(userRegisterDto);
   }
 
-  async getUsers(pageOptionsDto: UsersPageOptionsDto): Promise<PageDto<UserEntity>> {
+  async getUsers(
+    pageOptionsDto: UsersPageOptionsDto,
+  ): Promise<PageDto<UserEntity>> {
     return await this.userRepository.getUsers(pageOptionsDto);
   }
 

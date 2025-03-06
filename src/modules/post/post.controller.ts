@@ -57,9 +57,11 @@ export class PostController {
   }
 
   @Get(':id')
-  @Auth([])
+  @Auth([RoleType.USER])
   @HttpCode(HttpStatus.OK)
-  async getSinglePost(@UUIDParam('id') id: Uuid): Promise<GetSinglePostTransformer> {
+  async getSinglePost(
+    @UUIDParam('id') id: Uuid,
+  ): Promise<GetSinglePostTransformer> {
     const entity = await this.postService.getSinglePost(id);
 
     return new GetSinglePostTransformer(entity);
