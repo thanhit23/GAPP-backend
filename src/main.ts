@@ -51,7 +51,7 @@ export async function bootstrap(): Promise<NestExpressApplication> {
     new TranslationInterceptor(
       app.select(SharedModule).get(TranslationService),
     ),
-    new TransformResponseInterceptor()
+    new TransformResponseInterceptor(),
   );
 
   app.useGlobalPipes(
@@ -92,8 +92,8 @@ export async function bootstrap(): Promise<NestExpressApplication> {
   const port = configService.appConfig.port;
 
   // if ((<any>import.meta).env.PROD) {
-    await app.listen(port);
-    console.info(`server running on ${await app.getUrl()}`);
+  await app.listen(port);
+  console.info(`server running on ${await app.getUrl()}`);
   // }
 
   return app;

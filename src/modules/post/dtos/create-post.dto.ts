@@ -1,4 +1,7 @@
-import { StringField } from '../../../decorators/field.decorators.ts';
+import {
+  StringField,
+  StringFieldOptional,
+} from '../../../decorators/field.decorators.ts';
 
 export class CreatePostDto {
   @StringField()
@@ -6,4 +9,7 @@ export class CreatePostDto {
 
   @StringField()
   description!: string;
+
+  @StringFieldOptional()
+  image?: string;
 }

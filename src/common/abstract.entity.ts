@@ -6,7 +6,7 @@ import {
 
 export abstract class AbstractEntity {
   @PrimaryGeneratedColumn('uuid')
-  id!: Uuid;
+  id!: string;
 
   @CreateDateColumn({
     type: 'timestamp',

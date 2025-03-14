@@ -7,8 +7,14 @@ export class AddPostsTable1641994291086 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'Posts',
+        name: 'posts',
         columns: [
+          {
+            name: 'id',
+            type: 'char',
+            length: '36',
+            isPrimary: true,
+          },
           {
             name: 'title',
             type: 'varchar',
@@ -23,6 +29,7 @@ export class AddPostsTable1641994291086 implements MigrationInterface {
             name: 'image',
             type: 'varchar',
             length: '255',
+            isNullable: true,
           },
           {
             name: 'user_id',
@@ -48,17 +55,17 @@ export class AddPostsTable1641994291086 implements MigrationInterface {
     );
 
     await queryRunner.createForeignKey(
-      'Posts',
+      'posts',
       new TableForeignKey({
         columnNames: ['user_id'],
         referencedColumnNames: ['id'],
-        referencedTableName: 'Users',
+        referencedTableName: 'users',
         onDelete: 'CASCADE',
       }),
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query('DROP TABLE "Posts"');
+    await queryRunner.query('DROP TABLE "posts"');
   }
 }

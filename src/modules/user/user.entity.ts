@@ -5,6 +5,7 @@ import { UseDto } from '../../decorators/use-dto.decorator.ts';
 import { PostEntity } from '../post/post.entity.ts';
 import { NewsFeedEntity } from '../news-feed/news-feed.entity.ts';
 import { UserDto } from './dtos/user.dto.ts';
+import { FollowEntity } from '../follows/follow.entity.ts';
 
 @Entity({ name: 'users' })
 @UseDto(UserDto)
@@ -35,4 +36,10 @@ export class UserEntity extends AbstractEntity {
 
   @OneToMany(() => NewsFeedEntity, (entity) => entity.user)
   newsfeed?: NewsFeedEntity[];
+
+  @OneToMany(() => FollowEntity, (follow) => follow.source_user_id)
+  following?: FollowEntity[];
+
+  @OneToMany(() => FollowEntity, (follow) => follow.target_user_id)
+  followers?: FollowEntity[];
 }

@@ -15,7 +15,7 @@
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,
     "useDefineForClassFields": true,
     "allowUnreachableCode": false,
     "forceConsistentCasingInFileNames": true,
@@ -42,7 +42,7 @@
     "experimentalSpecifierResolution": "node",
     "transpileOnly": true,
     "esm": true,
-},
+  },
   "include": [
     "src/**/*",
   ],
