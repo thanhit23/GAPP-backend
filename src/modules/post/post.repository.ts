@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOneOptions, Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 
 import { PostEntity } from './post.entity.ts';
@@ -20,7 +20,7 @@ export class PostRepository {
 
   @Transactional()
   async createPost(
-    userId: Uuid,
+    userId: string,
     createPostDto: CreatePostDto,
   ): Promise<PostEntity> {
     const postEntity = this.postRepository.create({ userId, ...createPostDto });
@@ -32,20 +32,29 @@ export class PostRepository {
 
   async getAllPost(
     postPageOptionsDto: PostPageOptionsDto,
+    user_id: string,
   ): Promise<PageDto<PostDto>> {
-    const queryBuilder = this.postRepository.createQueryBuilder('post');
+    const queryBuilder = this.postRepository
+      .createQueryBuilder('posts')
+      .where('posts.user_id = :user_id', { user_id });
 
     const [data, meta] = await queryBuilder.paginate(postPageOptionsDto);
 
     return { data, meta };
   }
 
-  async getSinglePost(id: Uuid): Promise<PostEntity | null> {
+  async getSinglePost(id: string): Promise<PostEntity | null> {
     const queryBuilder = this.postRepository
       .createQueryBuilder('post')
       .where('post.id = :id', { id });
 
     return await queryBuilder.getOne();
+  }
+
+  async findOne(
+    option: FindOneOptions<PostEntity>,
+  ): Promise<PostEntity | null> {
+    return await this.postRepository.findOne(option);
   }
 
   async updatePost(

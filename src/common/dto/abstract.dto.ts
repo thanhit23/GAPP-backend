@@ -1,9 +1,9 @@
 import type { AbstractEntity } from '../abstract.entity.ts';
-import { DateField, UUIDField } from '../../decorators/field.decorators.ts';
+import { DateField, StringField } from '../../decorators/field.decorators.ts';
 
 export class AbstractDto {
-  @UUIDField()
-  id!: Uuid;
+  @StringField()
+  id!: string;
 
   @DateField()
   createdAt!: Date;

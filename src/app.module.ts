@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClsModule } from 'nestjs-cls';
+import { BullModule } from '@nestjs/bull';
 import {
   AcceptLanguageResolver,
   HeaderResolver,
@@ -14,25 +15,34 @@ import {
 import { DataSource } from 'typeorm';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 
+import { SharedModule } from './shared/shared.module.ts';
 import { AuthModule } from './modules/auth/auth.module.ts';
-import { HealthCheckerModule } from './modules/health-checker/health-checker.module.ts';
 import { PostModule } from './modules/post/post.module.ts';
 import { UserModule } from './modules/user/user.module.ts';
+import { FollowModule } from './modules/follows/follow.module.ts';
 import { NewsFeedModule } from './modules/news-feed/news-feed.module.ts';
 import { ApiConfigService } from './shared/services/api-config.service.ts';
-import { SharedModule } from './shared/shared.module.ts';
+import { HealthCheckerModule } from './modules/health-checker/health-checker.module.ts';
 
 @Module({
   imports: [
     AuthModule,
     UserModule,
     PostModule,
+    FollowModule,
     NewsFeedModule,
     ClsModule.forRoot({
       global: true,
       middleware: {
         mount: true,
       },
+    }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ApiConfigService) => ({
+        redis: configService.redisConfig,
+      }),
+      inject: [ApiConfigService],
     }),
     ThrottlerModule.forRootAsync({
       imports: [SharedModule],

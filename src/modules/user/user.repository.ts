@@ -23,16 +23,16 @@ export class UserRepository {
   async findByOption(
     options: Partial<{ username: string; email: string }>,
   ): Promise<UserEntity | null> {
-    const queryBuilder = this.userRepository.createQueryBuilder('user');
+    const queryBuilder = this.userRepository.createQueryBuilder('users');
 
     if (options.email) {
-      queryBuilder.orWhere('user.email = :email', {
+      queryBuilder.orWhere('users.email = :email', {
         email: options.email,
       });
     }
 
     if (options.username) {
-      queryBuilder.orWhere('user.username = :username', {
+      queryBuilder.orWhere('users.username = :username', {
         username: options.username,
       });
     }
@@ -52,16 +52,17 @@ export class UserRepository {
   async getUsers(
     pageOptionsDto: UsersPageOptionsDto,
   ): Promise<PageDto<UserEntity>> {
-    const queryBuilder = this.userRepository.createQueryBuilder('user');
+    const queryBuilder = this.userRepository.createQueryBuilder('users');
+
     const [data, meta] = await queryBuilder.paginate(pageOptionsDto);
 
     return { data, meta };
   }
 
-  async getUser(userId: Uuid): Promise<UserEntity | null> {
-    const queryBuilder = this.userRepository.createQueryBuilder('user');
+  async getUser(userId: string): Promise<UserEntity | null> {
+    const queryBuilder = this.userRepository.createQueryBuilder('users');
 
-    queryBuilder.where('user.id = :userId', { userId });
+    queryBuilder.where('users.id = :userId', { userId });
 
     return await queryBuilder.getOne();
   }

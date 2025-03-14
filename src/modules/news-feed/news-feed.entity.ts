@@ -9,11 +9,11 @@ import { AbstractEntity } from '../../common/abstract.entity.ts';
 @Entity({ name: 'news_feed' })
 @UseDto(NewsFeedDto)
 export class NewsFeedEntity extends AbstractEntity {
-  @Column({ type: 'uuid' })
-  user_id!: Uuid;
+  @Column({ type: 'char' })
+  user_id!: string;
 
-  @Column({ type: 'uuid' })
-  post_id!: Uuid;
+  @Column({ type: 'char' })
+  post_id!: string;
 
   @ManyToOne(() => UserEntity, (entity) => entity.newsfeed, {
     onDelete: 'CASCADE',

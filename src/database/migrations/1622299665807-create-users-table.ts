@@ -6,14 +6,13 @@ export class CreateUsersTable1622299665807 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'Users',
+        name: 'users',
         columns: [
           {
             name: 'id',
             type: 'char',
             length: '36',
             isPrimary: true,
-            default: 'uuid()',
           },
           {
             name: 'email',
@@ -77,6 +76,6 @@ export class CreateUsersTable1622299665807 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query('DROP TABLE "Users"');
+    await queryRunner.query('DROP TABLE "users"');
   }
 }
