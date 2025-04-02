@@ -10,14 +10,17 @@ import { NewsFeedEntity } from '../news-feed/news-feed.entity.ts';
 @Entity({ name: 'posts' })
 @UseDto(PostDto)
 export class PostEntity extends AbstractEntity {
-  @Column({ type: 'uuid' })
-  userId!: Uuid;
+  @Column({ type: 'char' })
+  userId!: string;
 
   @Column({ nullable: true, type: 'varchar' })
   title!: string;
 
   @Column({ nullable: true, type: 'varchar' })
   description!: string;
+
+  @Column({ nullable: true, type: 'varchar' })
+  image!: string;
 
   @ManyToOne(() => UserEntity, (userEntity) => userEntity.posts, {
     onDelete: 'CASCADE',

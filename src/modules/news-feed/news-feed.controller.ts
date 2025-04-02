@@ -52,15 +52,19 @@ export class NewsFeedController {
   @ApiPageResponse({ type: NewsFeedDto })
   async getNewsFeeds(
     @Query() pageOptionsDto: NewsFeedPageOptionsDto,
+    @AuthUser() user: UserEntity,
   ): Promise<GetPostsTransformer> {
-    const entity = await this.newsFeedService.getAllNewsFeed(pageOptionsDto);
+    const entity = await this.newsFeedService.getNewsFeedList(
+      user.id,
+      pageOptionsDto,
+    );
 
     return new GetNewsFeedTransformer(entity);
   }
 
   @Get(':id')
   @Auth([RoleType.USER])
-  async getSingleNewsFeed(@Param('id') id: Uuid) {
+  async getSingleNewsFeed(@Param('id') id: string) {
     const entity = await this.newsFeedService.getSingleNewsFeed(id);
 
     return new GetSingleNewsFeedTransformer(entity);
@@ -69,7 +73,7 @@ export class NewsFeedController {
   @Put(':id')
   @Auth([RoleType.USER])
   async updateNewsFeed(
-    @Param('id') id: Uuid,
+    @Param('id') id: string,
     @Body() updateNewsFeedDto: UpdateNewsFeedDto,
   ) {
     return await this.newsFeedService.updateNewsFeed(id, updateNewsFeedDto);
@@ -77,7 +81,7 @@ export class NewsFeedController {
 
   @Delete(':id')
   @Auth([RoleType.USER])
-  async deleteNewsFeed(@Param('id') id: Uuid) {
+  async deleteNewsFeed(@Param('id') id: string) {
     return await this.newsFeedService.deleteNewsFeed(id);
   }
 }

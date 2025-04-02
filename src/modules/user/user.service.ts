@@ -18,13 +18,20 @@ export class UserService {
   }
 
   async createUser(userRegisterDto: UserRegisterDto): Promise<UserEntity> {
-    const userExits = await this.userRepository.findByOption({
+    const userEmailExits = await this.userRepository.findByOption({
       email: userRegisterDto.email,
+    });
+
+    if (userEmailExits) {
+      throw new ExistedException('User already exists');
+    }
+
+    const userExits = await this.userRepository.findByOption({
       username: userRegisterDto.username,
     });
 
     if (userExits) {
-      throw new ExistedException('User already exists');
+      throw new ExistedException('Username already exists');
     }
 
     return await this.userRepository.createUser(userRegisterDto);
@@ -36,8 +43,8 @@ export class UserService {
     return await this.userRepository.getUsers(pageOptionsDto);
   }
 
-  async getUser(userId: Uuid): Promise<UserEntity | null> {
-    const userEntity = this.userRepository.getUser(userId);
+  async getUser(userId: string): Promise<UserEntity | null> {
+    const userEntity = await this.userRepository.getUser(userId);
 
     if (!userEntity) {
       throw new UserNotFoundException();
