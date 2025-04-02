@@ -9,7 +9,7 @@ export class CreateNewsFeedTransformer extends BaseTransformer {
 
 export class GetNewsFeedTransformer extends BaseTransformer {
   async data() {
-    return await this.resource;
+    return { data: this.resource };
   }
 }
 

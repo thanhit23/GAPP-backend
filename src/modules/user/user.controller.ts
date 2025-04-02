@@ -4,12 +4,12 @@ import {
   HttpCode,
   HttpStatus,
   Query,
+  Redirect,
   ValidationPipe,
 } from '@nestjs/common';
 
 import { PageDto } from '../../common/dto/page.dto.ts';
 import { RoleType } from '../../constants/role-type.ts';
-import { ApiPageResponse } from '../../decorators/api-page-response.decorator.ts';
 import { AuthUser } from '../../decorators/auth-user.decorator.ts';
 import { Auth, UUIDParam } from '../../decorators/http.decorators.ts';
 import { UseLanguageInterceptor } from '../../interceptors/language-interceptor.service.ts';
@@ -40,12 +40,12 @@ export class UserController {
   }
 
   @Get()
+  @Redirect('news-feed/:id/user')
+  redirect() {}
+
+  @Get()
   @Auth([RoleType.USER])
   @HttpCode(HttpStatus.OK)
-  @ApiPageResponse({
-    description: 'Get users list',
-    type: PageDto,
-  })
   getUsers(
     @Query(new ValidationPipe({ transform: true }))
     pageOptionsDto: UsersPageOptionsDto,
@@ -56,7 +56,7 @@ export class UserController {
   @Get(':id')
   @Auth([RoleType.USER])
   @HttpCode(HttpStatus.OK)
-  getUser(@UUIDParam('id') userId: Uuid): Promise<UserEntity | null> {
+  getUser(@UUIDParam('id') userId: string): Promise<UserEntity | null> {
     return this.userService.getUser(userId);
   }
 }

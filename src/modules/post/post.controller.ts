@@ -11,12 +11,10 @@ import {
 } from '@nestjs/common';
 
 import { RoleType } from '../../constants/role-type.ts';
-import { ApiPageResponse } from '../../decorators/api-page-response.decorator.ts';
 import { AuthUser } from '../../decorators/auth-user.decorator.ts';
 import { Auth, UUIDParam } from '../../decorators/http.decorators.ts';
 import { UserEntity } from '../user/user.entity.ts';
 import { CreatePostDto } from './dtos/create-post.dto.ts';
-import { PostDto } from './dtos/post.dto.ts';
 import { PostPageOptionsDto } from './dtos/post-page-options.dto.ts';
 import { UpdatePostDto } from './dtos/update-post.dto.ts';
 import { PostService } from './post.service.ts';
@@ -33,7 +31,7 @@ export class PostController {
   @Post()
   @Auth([RoleType.USER])
   @HttpCode(HttpStatus.CREATED)
-  async createPost(
+  async create(
     @Body() createPostDto: CreatePostDto,
     @AuthUser() user: UserEntity,
   ) {
@@ -47,11 +45,14 @@ export class PostController {
 
   @Get()
   @Auth([RoleType.USER])
-  @ApiPageResponse({ type: PostDto })
-  async getPosts(
+  async get(
     @Query() postsPageOptionsDto: PostPageOptionsDto,
+    @AuthUser() user: UserEntity,
   ): Promise<GetPostsTransformer> {
-    const entity = await this.postService.getAllPost(postsPageOptionsDto);
+    const entity = await this.postService.getAllPost(
+      postsPageOptionsDto,
+      user.id,
+    );
 
     return new GetPostsTransformer(entity);
   }
@@ -60,7 +61,7 @@ export class PostController {
   @Auth([RoleType.USER])
   @HttpCode(HttpStatus.OK)
   async getSinglePost(
-    @UUIDParam('id') id: Uuid,
+    @UUIDParam('id') id: string,
   ): Promise<GetSinglePostTransformer> {
     const entity = await this.postService.getSinglePost(id);
 
@@ -69,8 +70,8 @@ export class PostController {
 
   @Put(':id')
   @HttpCode(HttpStatus.ACCEPTED)
-  async updatePost(
-    @UUIDParam('id') id: Uuid,
+  async put(
+    @UUIDParam('id') id: string,
     @Body() updatePostDto: UpdatePostDto,
   ): Promise<{ data: boolean }> {
     await this.postService.updatePost(id, updatePostDto);
@@ -80,7 +81,7 @@ export class PostController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.ACCEPTED)
-  async deletePost(@UUIDParam('id') id: Uuid): Promise<boolean> {
+  async delete(@UUIDParam('id') id: string): Promise<boolean> {
     return await this.postService.deletePost(id);
   }
 }

@@ -1,5 +1,8 @@
+import { FindOneOptions } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { Transactional } from 'typeorm-transactional';
+import { InjectQueue } from '@nestjs/bull';
+import type { Queue } from 'bull';
 
 import { PostEntity } from './post.entity.ts';
 import { PostRepository } from './post.repository.ts';
@@ -13,20 +16,54 @@ import type { PostPageOptionsDto } from './dtos/post-page-options.dto.ts';
 
 @Injectable()
 export class PostService {
-  constructor(private postRepository: PostRepository) {}
+  constructor(
+    private postRepository: PostRepository,
+    @InjectQueue('post-queue') private postQueue: Queue,
+  ) {}
 
   @Transactional()
-  createPost(userId: Uuid, createPostDto: CreatePostDto): Promise<PostEntity> {
-    return this.postRepository.createPost(userId, createPostDto);
+  async createPost(
+    user_id: string,
+    createPostDto: CreatePostDto,
+  ): Promise<PostEntity> {
+    const entityPost = await this.postRepository.createPost(
+      user_id,
+      createPostDto,
+    );
+
+    await this.postQueue.add(
+      'fan-out-post',
+      {
+        userId: user_id,
+        postId: entityPost.id,
+      },
+      {
+        removeOnComplete: {
+          age: 24 * 60 * 60,
+        },
+        removeOnFail: {
+          age: 24 * 60 * 60,
+        },
+      },
+    );
+
+    return entityPost;
   }
 
   async getAllPost(
     postPageOptionsDto: PostPageOptionsDto,
+    user_id: string,
   ): Promise<PageDto<PostDto>> {
-    return await this.postRepository.getAllPost(postPageOptionsDto);
+    return await this.postRepository.getAllPost(postPageOptionsDto, user_id);
   }
 
-  async getSinglePost(id: Uuid): Promise<PostEntity> {
+  async findOne(
+    optionsDto: FindOneOptions<PostEntity>,
+  ): Promise<PostDto | null> {
+    return await this.postRepository.findOne(optionsDto);
+  }
+
+  async getSinglePost(id: string): Promise<PostEntity> {
     const postEntity = await this.postRepository.getSinglePost(id);
 
     if (!postEntity) {
@@ -36,7 +73,7 @@ export class PostService {
     return postEntity;
   }
 
-  async updatePost(id: Uuid, updatePostDto: UpdatePostDto): Promise<boolean> {
+  async updatePost(id: string, updatePostDto: UpdatePostDto): Promise<boolean> {
     const postEntity = await this.postRepository.getSinglePost(id);
 
     if (!postEntity) {
@@ -48,7 +85,7 @@ export class PostService {
     return true;
   }
 
-  async deletePost(id: Uuid): Promise<boolean> {
+  async deletePost(id: string): Promise<boolean> {
     const postEntity = await this.postRepository.getSinglePost(id);
 
     if (!postEntity) {

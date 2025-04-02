@@ -130,6 +130,14 @@ export class ApiConfigService {
     };
   }
 
+  get redisConfig() {
+    return {
+      host: this.getString('REDIS_HOST'),
+      port: this.getNumber('REDIS_PORT'),
+      password: this.getString('REDIS_PASSWORD'),
+    };
+  }
+
   get authConfig() {
     return {
       privateKey: this.getString('JWT_PRIVATE_KEY'),
