@@ -36,6 +36,10 @@ export class FollowService {
     return await this.followRepository.getFollowersByUserId(id);
   }
 
+  async getCountFollowersByUserId(id: string): Promise<number> {
+    return await this.followRepository.getCountFollowersByUserId(id);
+  }
+
   async unfollow(id: string): Promise<boolean> {
     const entity = await this.followRepository.getFollower(id);
 

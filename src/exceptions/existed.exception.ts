@@ -1,14 +1,17 @@
-import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
+import { BadRequestException, HttpStatus } from '@nestjs/common';
 
+interface ExistedExceptionError {
+  message: string;
+  type: string;
+}
 export class ExistedException extends BadRequestException {
-  constructor(message?: string) {
-    super(
-      HttpException.createBody(
-        null,
-        message!,
-        HttpStatus.BAD_REQUEST,
-      ),
-      message,
-    );
+  constructor(error?: ExistedExceptionError) {
+    super({
+      statusCode: HttpStatus.BAD_REQUEST,
+      message: 'Bad Request',
+      error: 'Bad Request',
+      type: 'error',
+      ...error,
+    });
   }
 }

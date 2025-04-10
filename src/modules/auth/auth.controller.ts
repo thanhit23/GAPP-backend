@@ -21,6 +21,7 @@ import {
   LoginTransformer,
   RegisterTransformer,
 } from '../../transformer/auth.transformer.ts';
+import { UserNotFoundException } from 'exceptions/user-not-found.exception.ts';
 
 @Controller('auth')
 export class AuthController {
@@ -35,6 +36,10 @@ export class AuthController {
     @Body() userLoginDto: UserLoginDto,
   ): Promise<LoginTransformer> {
     const userEntity = await this.authService.validateUser(userLoginDto);
+
+    if (!userEntity) {
+      throw new UserNotFoundException();
+    }
 
     const token = await this.authService.createAccessToken({
       userId: userEntity.id,
@@ -51,7 +56,12 @@ export class AuthController {
   ): Promise<RegisterTransformer> {
     const createdUser = await this.userService.createUser(userRegisterDto);
 
-    return new RegisterTransformer({ ...createdUser, isActive: true });
+    const token = await this.authService.createAccessToken({
+      userId: createdUser.id,
+      role: RoleType.USER,
+    });
+
+    return new RegisterTransformer({ ...createdUser, isActive: true, token });
   }
 
   @Version('1')

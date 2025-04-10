@@ -10,12 +10,16 @@ import type { PostDto } from './dtos/post.dto.ts';
 import type { PageDto } from '../../common/dto/page.dto.ts';
 import type { UpdatePostDto } from './dtos/update-post.dto.ts';
 import type { PostPageOptionsDto } from './dtos/post-page-options.dto.ts';
+import { UserEntity } from '../user/user.entity.ts';
+import { UserNotFoundException } from '../../exceptions/user-not-found.exception.ts';
 
 @Injectable()
 export class PostRepository {
   constructor(
     @InjectRepository(PostEntity)
     private postRepository: Repository<PostEntity>,
+    @InjectRepository(UserEntity)
+    private userRepository: Repository<UserEntity>,
   ) {}
 
   @Transactional()
@@ -35,8 +39,11 @@ export class PostRepository {
     user_id: string,
   ): Promise<PageDto<PostDto>> {
     const queryBuilder = this.postRepository
-      .createQueryBuilder('posts')
-      .where('posts.user_id = :user_id', { user_id });
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.user', 'user')
+      .where('post.user_id = :user_id', { user_id })
+      .select(['post', 'user.avatar', 'user.username', 'user.id', 'user.name'])
+      .groupBy('post.id, user.id');
 
     const [data, meta] = await queryBuilder.paginate(postPageOptionsDto);
 
@@ -49,6 +56,30 @@ export class PostRepository {
       .where('post.id = :id', { id });
 
     return await queryBuilder.getOne();
+  }
+
+  async getByUsername(
+    postPageOptionsDto: PostPageOptionsDto,
+    username: string,
+  ): Promise<PageDto<PostDto>> {
+    const user = await this.userRepository.findOne({
+      where: { username },
+    });
+
+    if (!user) {
+      throw new UserNotFoundException();
+    }
+
+    const queryBuilder = this.postRepository
+      .createQueryBuilder('post')
+      .leftJoinAndSelect('post.user', 'user')
+      .where('post.user_id = :user_id', { user_id: user.id })
+      .select(['post', 'user.avatar', 'user.username', 'user.id', 'user.name'])
+      .groupBy('post.id, user.id');
+
+    const [data, meta] = await queryBuilder.paginate(postPageOptionsDto);
+
+    return { data, meta };
   }
 
   async findOne(

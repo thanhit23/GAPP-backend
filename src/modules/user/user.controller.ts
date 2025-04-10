@@ -3,8 +3,10 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
+  Put,
+  Body,
   Query,
-  Redirect,
   ValidationPipe,
 } from '@nestjs/common';
 
@@ -17,6 +19,8 @@ import { TranslationService } from '../../shared/services/translation.service.ts
 import { UsersPageOptionsDto } from './dtos/users-page-options.dto.ts';
 import { UserEntity } from './user.entity.ts';
 import { UserService } from './user.service.ts';
+import { ProfileTransformer } from '../../transformer/user.transformer.ts';
+import { UpdateUserDto } from './dtos/user-update.dto.ts';
 
 @Controller('users')
 export class UserController {
@@ -40,13 +44,9 @@ export class UserController {
   }
 
   @Get()
-  @Redirect('news-feed/:id/user')
-  redirect() {}
-
-  @Get()
   @Auth([RoleType.USER])
   @HttpCode(HttpStatus.OK)
-  getUsers(
+  async getUsers(
     @Query(new ValidationPipe({ transform: true }))
     pageOptionsDto: UsersPageOptionsDto,
   ): Promise<PageDto<UserEntity>> {
@@ -58,5 +58,25 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   getUser(@UUIDParam('id') userId: string): Promise<UserEntity | null> {
     return this.userService.getUser(userId);
+  }
+
+  @Get('profile/:username')
+  @Auth([RoleType.USER])
+  async getUserByUsername(
+    @Param('username') username: string,
+  ): Promise<ProfileTransformer> {
+    const user = await this.userService.getUserByUsername(username);
+
+    return new ProfileTransformer(user);
+  }
+
+  @Put(':id')
+  @Auth([RoleType.USER])
+  @HttpCode(HttpStatus.OK)
+  async updateUser(
+    @UUIDParam('id') userId: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return this.userService.updateUser(userId, updateUserDto);
   }
 }

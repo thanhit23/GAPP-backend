@@ -8,6 +8,7 @@ import type { PageDto } from '../../common/dto/page.dto.ts';
 import { UserRegisterDto } from '../auth/dto/user-register.dto.ts';
 import type { UsersPageOptionsDto } from './dtos/users-page-options.dto.ts';
 import { UserEntity } from './user.entity.ts';
+import { UpdateUserDto } from './dtos/user-update.dto.ts';
 
 @Injectable()
 export class UserRepository {
@@ -65,5 +66,19 @@ export class UserRepository {
     queryBuilder.where('users.id = :userId', { userId });
 
     return await queryBuilder.getOne();
+  }
+
+  async getUserByUsername(username: string): Promise<UserEntity | null> {
+    const queryBuilder = this.userRepository
+      .createQueryBuilder('users')
+      .where('users.username = :username', { username });
+
+    return await queryBuilder.getOne();
+  }
+
+  async updateUser(userEntity: UserEntity, updateUserDto: UpdateUserDto) {
+    const newUser = this.userRepository.merge(userEntity, updateUserDto);
+
+    await this.userRepository.save(newUser);
   }
 }
