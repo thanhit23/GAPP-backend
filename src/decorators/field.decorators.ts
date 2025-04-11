@@ -81,7 +81,9 @@ export function NumberField(
   }
 
   if (options.swagger !== false) {
-    decorators.push(ApiProperty({ type: Number, ...(options as ApiPropertyOptions) }));
+    decorators.push(
+      ApiProperty({ type: Number, ...(options as ApiPropertyOptions) }),
+    );
   }
 
   if (options.each) {
@@ -132,7 +134,11 @@ export function StringField(
 
   if (options.swagger !== false) {
     decorators.push(
-      ApiProperty({ type: String, ...(options as ApiPropertyOptions), isArray: options.each }),
+      ApiProperty({
+        type: String,
+        ...(options as ApiPropertyOptions),
+        isArray: options.each,
+      }),
     );
   }
 
@@ -202,7 +208,9 @@ export function BooleanField(
   }
 
   if (options.swagger !== false) {
-    decorators.push(ApiProperty({ type: Boolean, ...(options as ApiPropertyOptions) }));
+    decorators.push(
+      ApiProperty({ type: Boolean, ...(options as ApiPropertyOptions) }),
+    );
   }
 
   return applyDecorators(...decorators);
@@ -238,7 +246,9 @@ export function TranslationsField(
   }
 
   if (options.swagger !== false) {
-    decorators.push(ApiProperty({ isArray: true, ...(options as ApiPropertyOptions) }));
+    decorators.push(
+      ApiProperty({ isArray: true, ...(options as ApiPropertyOptions) }),
+    );
   }
 
   return applyDecorators(...decorators);
@@ -270,7 +280,11 @@ export function TmpKeyField(
 
   if (options.swagger !== false) {
     decorators.push(
-      ApiProperty({ type: String, ...(options as ApiPropertyOptions), isArray: options.each }),
+      ApiProperty({
+        type: String,
+        ...(options as ApiPropertyOptions),
+        isArray: options.each,
+      }),
     );
   }
 
@@ -287,7 +301,6 @@ export function TmpKeyFieldOptional(
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export function EnumField<TEnum extends object>(
   getEnum: () => TEnum,
   options: Omit<ApiPropertyOptions, 'type' | 'enum' | 'enumName' | 'isArray'> &
@@ -315,7 +328,6 @@ export function EnumField<TEnum extends object>(
   return applyDecorators(...decorators);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export function ClassField<TClass extends Constructor>(
   getClass: () => TClass,
   options: Omit<ApiPropertyOptions, 'type'> & IClassFieldOptions = {},
@@ -353,7 +365,6 @@ export function ClassField<TClass extends Constructor>(
   return applyDecorators(...decorators);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export function EnumFieldOptional<TEnum extends object>(
   getEnum: () => TEnum,
   options: Omit<ApiPropertyOptions, 'type' | 'required' | 'enum' | 'enumName'> &
@@ -365,7 +376,6 @@ export function EnumFieldOptional<TEnum extends object>(
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export function ClassFieldOptional<TClass extends Constructor>(
   getClass: () => TClass,
   options: Omit<ApiPropertyOptions, 'type' | 'required'> &
@@ -392,7 +402,9 @@ export function EmailField(
   }
 
   if (options.swagger !== false) {
-    decorators.push(ApiProperty({ type: String, ...(options as ApiPropertyOptions) }));
+    decorators.push(
+      ApiProperty({ type: String, ...(options as ApiPropertyOptions) }),
+    );
   }
 
   return applyDecorators(...decorators);
@@ -419,7 +431,9 @@ export function PhoneField(
   }
 
   if (options.swagger !== false) {
-    decorators.push(ApiProperty({ type: String, ...(options as ApiPropertyOptions) }));
+    decorators.push(
+      ApiProperty({ type: String, ...(options as ApiPropertyOptions) }),
+    );
   }
 
   return applyDecorators(...decorators);
@@ -502,7 +516,9 @@ export function DateField(
   }
 
   if (options.swagger !== false) {
-    decorators.push(ApiProperty({ type: Date, ...(options as ApiPropertyOptions) }));
+    decorators.push(
+      ApiProperty({ type: Date, ...(options as ApiPropertyOptions) }),
+    );
   }
 
   return applyDecorators(...decorators);

@@ -50,6 +50,13 @@ export class FollowRepository {
       .getRawMany();
   }
 
+  async getCountFollowersByUserId(user_id: string): Promise<number> {
+    return await this.followRepository
+      .createQueryBuilder('follow')
+      .where('follow.source_user_id = :user_id', { user_id })
+      .getCount();
+  }
+
   async getFollowing(user_id: string): Promise<FollowEntity[]> {
     return await this.followRepository
       .createQueryBuilder('follow')

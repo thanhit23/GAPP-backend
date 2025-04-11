@@ -42,6 +42,7 @@ export class NewsFeedRepository {
     const queryBuilder = this.newsFeedRepository
       .createQueryBuilder('news_feed')
       .leftJoinAndSelect('news_feed.post', 'post')
+      .leftJoinAndSelect('post.user', 'user')
       .where('news_feed.user_id = :user_id', { user_id })
       .orderBy('news_feed.updatedAt', 'DESC');
 

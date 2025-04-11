@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
   Put,
   Query,
@@ -66,6 +67,20 @@ export class PostController {
     const entity = await this.postService.getSinglePost(id);
 
     return new GetSinglePostTransformer(entity);
+  }
+
+  @Get('username/:username')
+  @Auth([RoleType.USER])
+  async getByUsername(
+    @Query() postsPageOptionsDto: PostPageOptionsDto,
+    @Param('username') username: string,
+  ): Promise<GetPostsTransformer> {
+    const entity = await this.postService.getByUsername(
+      postsPageOptionsDto,
+      username,
+    );
+
+    return new GetPostsTransformer(entity);
   }
 
   @Put(':id')

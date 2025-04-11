@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { UnauthorizedException } from '@nestjs/common';
 
 import { validateHash } from '../../common/utils.ts';
 import type { RoleType } from '../../constants/role-type.ts';
@@ -33,20 +34,30 @@ export class AuthService {
     });
   }
 
-  async validateUser(userLoginDto: UserLoginDto): Promise<UserEntity> {
-    const user = await this.userService.findOne({
+  async validateUser(userLoginDto: UserLoginDto): Promise<UserEntity | null> {
+    const foundUser = await this.userService.findOne({
       email: userLoginDto.email,
     });
 
-    const isPasswordValid = await validateHash(
-      userLoginDto.password,
-      user?.password,
-    );
+    const foundUserByUsername = await this.userService.findOne({
+      username: userLoginDto.email,
+    });
 
-    if (!isPasswordValid) {
-      throw new UserNotFoundException();
+    if (!foundUser && !foundUserByUsername) {
+      throw new UserNotFoundException({
+        type: !foundUser ? 'email' : 'username',
+        message: !foundUser ? 'Email not found' : 'Username not found',
+      });
     }
 
-    return user!;
+    const password = foundUser?.password || foundUserByUsername?.password;
+
+    const isPasswordValid = await validateHash(userLoginDto.password, password);
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid password');
+    }
+
+    return foundUser || foundUserByUsername;
   }
 }

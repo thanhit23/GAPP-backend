@@ -72,6 +72,17 @@ export class PostService {
 
     return postEntity;
   }
+  async getByUsername(
+    postPageOptionsDto: PostPageOptionsDto,
+    username: string,
+  ): Promise<PageDto<PostDto>> {
+    const postEntity = await this.postRepository.getByUsername(
+      postPageOptionsDto,
+      username,
+    );
+
+    return postEntity;
+  }
 
   async updatePost(id: string, updatePostDto: UpdatePostDto): Promise<boolean> {
     const postEntity = await this.postRepository.getSinglePost(id);
