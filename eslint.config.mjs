@@ -16,6 +16,10 @@ export default tsEslint.config(
     },
     ignores: [
       'eslint.config.mjs',
+      '.vuepress/*',
+      'ormconfig.ts',
+      'vite.config.mts',
+      'test/*',
       'docs/.vuepress/**/*',
       'src/generated/i18n.generated.ts',
     ],
