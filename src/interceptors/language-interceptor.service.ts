@@ -17,7 +17,6 @@ export class LanguageInterceptor implements NestInterceptor {
       'x-language-code'
     ] as LanguageCode;
 
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     if (LanguageCode[language]) {
       ContextProvider.setLanguage(language);
     }

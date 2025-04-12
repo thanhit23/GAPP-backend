@@ -23,7 +23,6 @@ export class TranslationService {
     await Promise.all(
       _.map(dto, (value, key) => {
         if (_.isString(value)) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           const translateDec: ITranslationDecoratorInterface | undefined =
             Reflect.getMetadata(STATIC_TRANSLATION_DECORATOR_KEY, dto, key);
 
