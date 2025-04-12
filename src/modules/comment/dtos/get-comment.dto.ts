@@ -1,15 +1,15 @@
 import { StringFieldOptional } from '../../../decorators/field.decorators.ts';
 
-export class UpdatePostDto {
+export class GetCommentDto {
   @StringFieldOptional()
-  title!: string;
+  post_id?: string;
 
   @StringFieldOptional()
-  description!: string;
+  parent_id?: string;
 
   @StringFieldOptional()
-  total_likes?: number;
+  after?: string;
 
   @StringFieldOptional()
-  total_comments?: number;
+  limit?: number;
 }

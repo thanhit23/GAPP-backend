@@ -8,6 +8,7 @@ import type { PageDto } from '../../common/dto/page.dto.ts';
 import { NewsFeedPageOptionsDto } from './dtos/news-feed-page-options.dto.ts';
 import { CreateNewsFeedDto } from './dtos/create-news-feed.dto.ts';
 import { UpdateNewsFeedDto } from './dtos/update-news-feed.dto.ts';
+import { LikeRepository } from '../like/like.repository';
 
 type NewsFeedDto = CreateNewsFeedDto & { user_id: string };
 
@@ -16,10 +17,11 @@ export class NewsFeedRepository {
   constructor(
     @InjectRepository(NewsFeedEntity)
     private newsFeedRepository: Repository<NewsFeedEntity>,
+    private likeRepository: LikeRepository,
   ) {}
 
   @Transactional()
-  async createNewsFeed(
+  async creation(
     newsFeedDto: CreateNewsFeedDto & { user_id: string },
   ): Promise<NewsFeedEntity> {
     const entity = this.newsFeedRepository.create(newsFeedDto);
@@ -43,12 +45,42 @@ export class NewsFeedRepository {
       .createQueryBuilder('news_feed')
       .leftJoinAndSelect('news_feed.post', 'post')
       .leftJoinAndSelect('post.user', 'user')
+      .select([
+        'news_feed',
+        'post',
+        'user.id',
+        'user.username',
+        'user.email',
+        'user.avatar',
+      ])
       .where('news_feed.user_id = :user_id', { user_id })
+      .groupBy('news_feed.id, post.id, user.id')
       .orderBy('news_feed.updatedAt', 'DESC');
 
     const [data, meta] = await queryBuilder.paginate(pageOptionsDto);
 
-    return { data, meta };
+    const post_ids = data.map((item) => item.post_id);
+
+    const listPostLiked = await this.likeRepository.getListPostLiked({
+      user_id,
+      post_ids,
+    });
+
+    const dataList = data.map((item) => {
+      const is_liked = listPostLiked.some(
+        (like) => like.post_id === item.post_id,
+      );
+
+      return {
+        ...item,
+        post: {
+          is_liked,
+          ...item.post,
+        },
+      };
+    });
+
+    return { data: dataList, meta };
   }
 
   async findNonExistentPostIds(postIds: string[]): Promise<string[]> {

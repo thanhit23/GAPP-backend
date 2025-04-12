@@ -14,10 +14,16 @@ import { PostRepository } from '../post/post.repository.ts';
 import { PostService } from '../post/post.service.ts';
 import { PostModule } from '../post/post.module.ts';
 import { RedisModule } from '../redis/redis.module.ts';
+import { LikeService } from '../like/like.service.ts';
+import { LikeRepository } from '../like/like.repository.ts';
+import { LikeEntity } from '../like/like.entity.ts';
+import { CommentService } from '../comment/comment.service.ts';
+import { CommentRepository } from '../comment/comment.repository.ts';
+import { CommentEntity } from '../comment/comment.entity.ts';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([NewsFeedEntity]),
+    TypeOrmModule.forFeature([NewsFeedEntity, LikeEntity, CommentEntity]),
     forwardRef(() => PostModule),
     BullModule.registerQueue({
       name: 'post-queue',
@@ -33,6 +39,10 @@ import { RedisModule } from '../redis/redis.module.ts';
     FollowRepository,
     UserService,
     UserRepository,
+    LikeService,
+    LikeRepository,
+    CommentService,
+    CommentRepository,
   ],
   controllers: [NewsFeedController],
   exports: [NewsFeedService, NewsFeedRepository],

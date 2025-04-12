@@ -15,7 +15,7 @@ export class FollowRelationDto extends AbstractDto {
     this.id = entity.id;
     this.source_user_id = entity.source_user_id;
     this.target_user_id = entity.target_user_id;
-    this.createdAt = entity.createdAt;
-    this.updatedAt = entity.updatedAt;
+    this.created_at = entity.created_at;
+    this.updated_at = entity.updated_at;
   }
 }

@@ -6,16 +6,16 @@ export class AbstractDto {
   id!: string;
 
   @DateField()
-  createdAt!: Date;
+  created_at!: Date;
 
   @DateField()
-  updatedAt!: Date;
+  updated_at!: Date;
 
   constructor(entity: AbstractEntity, options?: { excludeFields?: boolean }) {
     if (!options?.excludeFields && entity) {
       this.id = entity.id;
-      this.createdAt = entity.createdAt;
-      this.updatedAt = entity.updatedAt;
+      this.created_at = entity.created_at;
+      this.updated_at = entity.updated_at;
     }
   }
 }

@@ -21,7 +21,7 @@ export class PostDto extends AbstractDto {
     this.title = post.title;
     this.description = post.description || '';
     this.image = post?.image || '';
-    this.createdAt = post.createdAt;
-    this.updatedAt = post.updatedAt;
+    this.created_at = post.created_at;
+    this.updated_at = post.updated_at;
   }
 }

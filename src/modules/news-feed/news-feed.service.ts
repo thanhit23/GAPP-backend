@@ -16,10 +16,10 @@ export class NewsFeedService {
     @Inject('REDIS_CLIENT') private readonly redisClient: Redis,
   ) {}
 
-  async createNewsFeed(
+  async creation(
     newsFeedDto: CreateNewsFeedDto & { user_id: string },
   ): Promise<NewsFeedEntity> {
-    return await this.newsFeedRepository.createNewsFeed(newsFeedDto);
+    return await this.newsFeedRepository.creation(newsFeedDto);
   }
 
   async deleteRedisKeysByPattern(match: string) {

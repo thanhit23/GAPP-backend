@@ -15,7 +15,7 @@ export class NewsFeedDto extends AbstractDto {
     this.id = newsFeed.id;
     this.post_id = newsFeed.post_id;
     this.user_id = newsFeed.user_id;
-    this.createdAt = newsFeed.createdAt;
-    this.updatedAt = newsFeed.updatedAt;
+    this.created_at = newsFeed.created_at;
+    this.updated_at = newsFeed.updated_at;
   }
 }

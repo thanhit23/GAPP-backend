@@ -22,6 +22,8 @@ import { UserModule } from './modules/user/user.module.ts';
 import { FollowModule } from './modules/follows/follow.module.ts';
 import { NewsFeedModule } from './modules/news-feed/news-feed.module.ts';
 import { ApiConfigService } from './shared/services/api-config.service.ts';
+import { LikeModule } from './modules/like/like.module.ts';
+import { CommentModule } from './modules/comment/comment.module.ts';
 import { HealthCheckerModule } from './modules/health-checker/health-checker.module.ts';
 
 @Module({
@@ -29,7 +31,9 @@ import { HealthCheckerModule } from './modules/health-checker/health-checker.mod
     AuthModule,
     UserModule,
     PostModule,
+    LikeModule,
     FollowModule,
+    CommentModule,
     NewsFeedModule,
     ClsModule.forRoot({
       global: true,
