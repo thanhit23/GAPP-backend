@@ -6,14 +6,14 @@ import { PostEntity } from '../post/post.entity';
 
 @Entity({ name: 'likes' })
 export class LikeEntity extends AbstractEntity {
-  @Column({ type: 'char' })
-  user_id!: string;
+  @Column({ name: 'user_id', type: 'char' })
+  userId!: string;
+
+  @Column({ name: 'post_id', type: 'char', nullable: true })
+  postId?: string;
 
   @Column({ type: 'char', nullable: true })
-  post_id?: string;
-
-  @Column({ type: 'char', nullable: true })
-  comment_id?: string;
+  commentId?: string;
 
   @ManyToOne(() => UserEntity, (entity) => entity.likes, {
     onDelete: 'CASCADE',

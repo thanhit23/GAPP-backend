@@ -1,4 +1,3 @@
-import { BullModule } from '@nestjs/bull';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Module, forwardRef } from '@nestjs/common';
 
@@ -25,9 +24,6 @@ import { CommentEntity } from '../comment/comment.entity.ts';
   imports: [
     TypeOrmModule.forFeature([NewsFeedEntity, LikeEntity, CommentEntity]),
     forwardRef(() => PostModule),
-    BullModule.registerQueue({
-      name: 'post-queue',
-    }),
     RedisModule,
   ],
   providers: [

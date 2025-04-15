@@ -4,9 +4,11 @@ import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 
 import { LikeEntity } from './like.entity';
-import { CreateLikeDto } from './dtos/create-like.dto';
 import { PostEntity } from '../post/post.entity';
+import { UnLikeDto } from './dtos/un-like.dto.ts';
+import { CreateLikeDto } from './dtos/create-like.dto';
 import { CommentEntity } from '../comment/comment.entity';
+
 @Injectable()
 export class LikeRepository {
   constructor(
@@ -24,18 +26,18 @@ export class LikeRepository {
 
     await this.likeRepository.save(entity);
 
-    if (entity?.post_id) {
+    if (entity?.postId) {
       await this.postRepository.increment(
-        { id: entity.post_id },
-        'total_likes',
+        { id: entity.postId },
+        'totalLikes',
         1,
       );
     }
 
-    if (entity?.comment_id) {
+    if (entity?.commentId) {
       await this.commentRepository.increment(
-        { id: entity.comment_id },
-        'total_likes',
+        { id: entity.commentId },
+        'totalLikes',
         1,
       );
     }
@@ -54,41 +56,43 @@ export class LikeRepository {
   }
 
   async getListPostLiked(params: {
-    user_id: string;
-    post_ids: string[];
+    userId: string;
+    postIds: string[];
   }): Promise<LikeEntity[]> {
     return await this.likeRepository
       .createQueryBuilder('likes')
-      .where('likes.user_id = :user_id', { user_id: params.user_id })
-      .where('likes.post_id IN (:...post_ids)', { post_ids: params.post_ids })
+      .where('likes.user_id = :user_id', { user_id: params.userId })
+      .where('likes.post_id IN (:...post_ids)', { post_ids: params.postIds })
       .select(['likes.post_id'])
       .getMany();
   }
 
   @Transactional()
-  async unLike(id: string): Promise<void> {
-    const entity = await this.likeRepository.findOne({ where: { id } });
+  async unLike(payload: UnLikeDto): Promise<boolean> {
+    const entity = await this.likeRepository.findOne({ where: payload });
 
     if (!entity) {
       throw new NotFoundException('Like not found');
     }
 
-    if (entity.post_id) {
+    if (entity.postId) {
       await this.postRepository.decrement(
-        { id: entity.post_id },
-        'total_likes',
+        { id: entity.postId },
+        'totalLikes',
         1,
       );
     }
 
-    if (entity.comment_id) {
+    if (entity.commentId) {
       await this.commentRepository.decrement(
-        { id: entity.comment_id },
-        'total_likes',
+        { id: entity.commentId },
+        'totalLikes',
         1,
       );
     }
 
-    await this.likeRepository.delete(id);
+    await this.likeRepository.remove(entity);
+
+    return true;
   }
 }

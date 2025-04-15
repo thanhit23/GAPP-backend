@@ -18,6 +18,8 @@ import {
   CreateCommentTransformer,
   GetCommentByOptionTransformer,
 } from '../../transformer/comment.transformer.ts';
+import { UserEntity } from '../../modules/user/user.entity.ts';
+import { AuthUser } from '../../decorators/auth-user.decorator.ts';
 
 @Controller('comments')
 export class CommentController {
@@ -27,8 +29,12 @@ export class CommentController {
   @Auth([RoleType.USER])
   async creation(
     @Body() body: CreateCommentDto,
+    @AuthUser() user: UserEntity,
   ): Promise<CreateCommentTransformer> {
-    const entity = await this.commentService.creation(body);
+    const entity = await this.commentService.creation({
+      ...body,
+      userId: user.id,
+    });
     return new CreateCommentTransformer(entity);
   }
 

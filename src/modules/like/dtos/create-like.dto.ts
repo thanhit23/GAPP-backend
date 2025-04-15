@@ -1,15 +1,12 @@
-import {
-  StringField,
-  StringFieldOptional,
-} from '../../../decorators/field.decorators.ts';
+import { StringFieldOptional } from '../../../decorators/field.decorators.ts';
 
 export class CreateLikeDto {
-  @StringField()
-  user_id!: string;
+  @StringFieldOptional()
+  userId?: string;
 
   @StringFieldOptional()
-  post_id?: string;
+  postId?: string;
 
   @StringFieldOptional()
-  comment_id?: string;
+  commentId?: string;
 }

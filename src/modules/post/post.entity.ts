@@ -16,19 +16,16 @@ export class PostEntity extends AbstractEntity {
   userId!: string;
 
   @Column({ nullable: true, type: 'varchar' })
-  title!: string;
-
-  @Column({ nullable: true, type: 'varchar' })
-  description!: string;
+  content!: string;
 
   @Column({ nullable: true, type: 'varchar' })
   image!: string;
 
-  @Column({ type: 'int', default: 0 })
-  total_likes!: number;
+  @Column({ name: 'total_likes', type: 'int', default: 0 })
+  totalLikes!: number;
 
-  @Column({ type: 'int', default: 0 })
-  total_comments!: number;
+  @Column({ name: 'total_comments', type: 'int', default: 0 })
+  totalComments!: number;
 
   @ManyToOne(() => UserEntity, (userEntity) => userEntity.posts, {
     onDelete: 'CASCADE',
@@ -37,7 +34,7 @@ export class PostEntity extends AbstractEntity {
   @JoinColumn({ name: 'user_id' })
   user!: Relation<UserEntity>;
 
-  @OneToMany(() => NewsFeedEntity, (entity) => entity.user)
+  @OneToMany(() => NewsFeedEntity, (entity) => entity.post)
   newsfeed?: NewsFeedEntity[];
 
   @OneToMany(() => LikeEntity, (entity) => entity.post)

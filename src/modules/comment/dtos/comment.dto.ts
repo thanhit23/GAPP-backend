@@ -8,13 +8,13 @@ import type { AbstractEntity } from '../../../common/abstract.entity.ts';
 
 export class CommentRelationDto extends AbstractDto {
   @StringField()
-  user_id!: string;
+  userId!: string;
 
   @StringFieldOptional()
-  post_id!: string | null;
+  postId!: string | null;
 
   @StringFieldOptional()
-  parent_id!: string | null;
+  parentId!: string | null;
 
   @StringField()
   content!: string;
@@ -22,11 +22,11 @@ export class CommentRelationDto extends AbstractDto {
   constructor(entity: AbstractEntity & CommentEntity) {
     super(entity);
     this.id = entity.id;
-    this.user_id = entity.user_id;
-    this.post_id = entity.post_id || null;
-    this.parent_id = entity.parent_id || null;
+    this.userId = entity.userId;
+    this.postId = entity.postId || null;
+    this.parentId = entity.parentId || null;
     this.content = entity.content;
-    this.created_at = entity.created_at;
-    this.updated_at = entity.updated_at;
+    this.createdAt = entity.createdAt;
+    this.updatedAt = entity.updatedAt;
   }
 }

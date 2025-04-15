@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { NewsFeedEntity } from './news-feed.entity.ts';
 import { NewsFeedRepository } from './news-feed.repository.ts';
+import { PostService } from '../post/post.service.ts';
 import { CreateNewsFeedDto } from './dtos/create-news-feed.dto.ts';
 import { UpdateNewsFeedDto } from './dtos/update-news-feed.dto.ts';
 import { NewsFeedPageOptionsDto } from './dtos/news-feed-page-options.dto.ts';
@@ -12,13 +13,16 @@ import { PageDto } from '../../common/dto/page.dto.ts';
 @Injectable()
 export class NewsFeedService {
   constructor(
+    private postService: PostService,
     private newsFeedRepository: NewsFeedRepository,
     @Inject('REDIS_CLIENT') private readonly redisClient: Redis,
   ) {}
 
   async creation(
-    newsFeedDto: CreateNewsFeedDto & { user_id: string },
+    newsFeedDto: CreateNewsFeedDto & { userId: string },
   ): Promise<NewsFeedEntity> {
+    await this.postService.getSinglePost(newsFeedDto.postId);
+
     return await this.newsFeedRepository.creation(newsFeedDto);
   }
 
@@ -37,10 +41,10 @@ export class NewsFeedService {
   }
 
   async getNewsFeedList(
-    user_id: string,
+    userId: string,
     pageOptionsDto: NewsFeedPageOptionsDto,
   ): Promise<PageDto<NewsFeedEntity>> {
-    const key = `news_feed:${user_id}:*`;
+    const key = `news_feed:${userId}:*`;
 
     const keys = await this.redisClient.keys(key);
 
@@ -49,9 +53,9 @@ export class NewsFeedService {
     const nonExistentPostIds =
       await this.newsFeedRepository.findNonExistentPostIds(postIds);
 
-    const postEntity = nonExistentPostIds.map((post_id) => ({
-      post_id,
-      user_id,
+    const postEntity = nonExistentPostIds.map((postId) => ({
+      postId,
+      userId,
     }));
 
     await this.newsFeedRepository.saveNewsFeed(postEntity);
@@ -59,7 +63,7 @@ export class NewsFeedService {
     await this.deleteRedisKeysByPattern(key);
 
     return await this.newsFeedRepository.getNewsFeedList(
-      user_id,
+      userId,
       pageOptionsDto,
     );
   }
@@ -83,6 +87,8 @@ export class NewsFeedService {
     if (!entity) {
       throw new NewsFeedNotFoundException();
     }
+
+    await this.postService.getSinglePost(updateNewsFeedDto.postId);
 
     await this.newsFeedRepository.updateNewsFeed(entity, updateNewsFeedDto);
 

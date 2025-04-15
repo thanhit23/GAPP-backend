@@ -9,23 +9,23 @@ import { UseDto } from '../../decorators/use-dto.decorator';
 @Entity({ name: 'comments' })
 @UseDto(CommentRelationDto)
 export class CommentEntity extends AbstractEntity {
-  @Column({ type: 'char' })
-  user_id!: string;
+  @Column({ name: 'user_id', type: 'char' })
+  userId!: string;
 
-  @Column({ type: 'char', nullable: true })
-  post_id?: string;
+  @Column({ name: 'post_id', type: 'char', nullable: true })
+  postId?: string;
 
-  @Column({ type: 'char', nullable: true })
-  parent_id?: string;
+  @Column({ name: 'parent_id', type: 'char', nullable: true })
+  parentId?: string;
 
   @Column({ type: 'varchar', length: 225 })
   content!: string;
 
-  @Column({ type: 'int', default: 0 })
-  total_likes!: number;
+  @Column({ name: 'total_likes', type: 'int', default: 0 })
+  totalLikes!: number;
 
-  @Column({ type: 'int', default: 0 })
-  total_replies!: number;
+  @Column({ name: 'total_replies', type: 'int', default: 0 })
+  totalReplies!: number;
 
   @ManyToOne(() => PostEntity, (entity) => entity.comments, {
     onDelete: 'CASCADE',
@@ -34,7 +34,7 @@ export class CommentEntity extends AbstractEntity {
   @JoinColumn({ name: 'post_id' })
   post?: Relation<PostEntity>;
 
-  @ManyToOne(() => CommentEntity, (entity) => entity.parent_id, {
+  @ManyToOne(() => CommentEntity, (entity) => entity.parentId, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })

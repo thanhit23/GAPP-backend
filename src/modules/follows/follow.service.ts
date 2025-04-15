@@ -12,8 +12,8 @@ import type { PageDto } from '../../common/dto/page.dto.ts';
 export class FollowService {
   constructor(private followRepository: FollowRepository) {}
 
-  async createFollow(newsFeedDto: FollowUserDto): Promise<FollowEntity> {
-    return await this.followRepository.createFollow(newsFeedDto);
+  async createFollow(followDto: FollowUserDto): Promise<FollowEntity> {
+    return await this.followRepository.createFollow(followDto);
   }
 
   async getPaginatedFollowers(

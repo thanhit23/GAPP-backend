@@ -39,10 +39,10 @@ export class UserEntity extends AbstractEntity {
   @OneToMany(() => NewsFeedEntity, (entity) => entity.user)
   newsfeed?: NewsFeedEntity[];
 
-  @OneToMany(() => FollowEntity, (follow) => follow.source_user_id)
+  @OneToMany(() => FollowEntity, (follow) => follow.sourceUserId)
   following?: FollowEntity[];
 
-  @OneToMany(() => FollowEntity, (follow) => follow.target_user_id)
+  @OneToMany(() => FollowEntity, (follow) => follow.targetUserId)
   followers?: FollowEntity[];
 
   @OneToMany(() => LikeEntity, (like) => like.user)

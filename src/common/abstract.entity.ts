@@ -9,12 +9,14 @@ export abstract class AbstractEntity {
   id!: string;
 
   @CreateDateColumn({
+    name: 'created_at',
     type: 'timestamp',
   })
-  created_at!: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn({
+    name: 'updated_at',
     type: 'timestamp',
   })
-  updated_at!: Date;
+  updatedAt!: Date;
 }

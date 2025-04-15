@@ -41,7 +41,7 @@ export class NewsFeedController {
   ): Promise<CreateNewsFeedTransformer> {
     const entity = await this.newsFeedService.creation({
       ...newsFeedDto,
-      user_id: user.id,
+      userId: user.id,
     });
 
     return new CreateNewsFeedTransformer(entity);

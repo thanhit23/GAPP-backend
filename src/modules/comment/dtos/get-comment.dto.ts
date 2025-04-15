@@ -2,10 +2,10 @@ import { StringFieldOptional } from '../../../decorators/field.decorators.ts';
 
 export class GetCommentDto {
   @StringFieldOptional()
-  post_id?: string;
+  postId?: string;
 
   @StringFieldOptional()
-  parent_id?: string;
+  parentId?: string;
 
   @StringFieldOptional()
   after?: string;

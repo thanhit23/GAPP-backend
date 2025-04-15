@@ -4,14 +4,14 @@ import {
 } from '../../../decorators/field.decorators.ts';
 
 export class CreateCommentDto {
-  @StringField()
-  user_id!: string;
+  @StringFieldOptional()
+  userId?: string;
 
   @StringFieldOptional()
-  post_id?: string;
+  postId?: string;
 
   @StringFieldOptional()
-  parent_id?: string;
+  parentId?: string;
 
   @StringField()
   content!: string;

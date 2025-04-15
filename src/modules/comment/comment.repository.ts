@@ -34,18 +34,18 @@ export class CommentRepository {
 
     await this.commentRepository.save(entity);
 
-    if (entity?.post_id) {
+    if (entity?.postId) {
       await this.postRepository.increment(
-        { id: entity.post_id },
-        'total_comments',
+        { id: entity.postId },
+        'totalComments',
         1,
       );
     }
 
-    if (entity?.parent_id) {
+    if (entity?.parentId) {
       await this.commentRepository.increment(
-        { id: entity.parent_id },
-        'total_comments',
+        { id: entity.parentId },
+        'totalComments',
         1,
       );
     }
@@ -56,26 +56,26 @@ export class CommentRepository {
   async getByOptions(query: GetCommentDto): Promise<GetCommentCursor> {
     const queryBuilder = this.commentRepository
       .createQueryBuilder('comment')
-      .innerJoinAndSelect('comment.user', 'user');
+      .innerJoin('comment.user', 'user');
 
-    if (query?.post_id) {
-      queryBuilder.where('comment.post_id = :post_id', {
-        post_id: query.post_id,
+    if (query?.postId) {
+      queryBuilder.where('comment.postId = :postId', {
+        postId: query.postId,
       });
     }
 
-    if (query?.parent_id) {
-      queryBuilder.where('comment.parent_id = :parent_id', {
-        parent_id: query.parent_id,
+    if (query?.parentId) {
+      queryBuilder.where('comment.parentId = :parentId', {
+        parentId: query.parentId,
       });
     }
 
     if (query?.after) {
       queryBuilder.andWhere(
         `(
-        comment.created_at < (SELECT c2.created_at FROM comments AS c2 WHERE c2.id = :after)
+        comment.createdAt < (SELECT c2.created_at FROM comments AS c2 WHERE c2.id = :after)
         OR (
-          comment.created_at = (SELECT c3.created_at FROM comments AS c3 WHERE c3.id = :after)
+          comment.createdAt = (SELECT c3.created_at FROM comments AS c3 WHERE c3.id = :after)
           AND comment.id < :after
         )
       )`,
@@ -91,7 +91,7 @@ export class CommentRepository {
         'user.username',
         'user.avatar',
       ])
-      .orderBy('comment.created_at', 'DESC')
+      .orderBy('comment.createdAt', 'DESC')
       .addOrderBy('comment.id', 'DESC');
 
     const limit = query.limit || 10;
@@ -100,8 +100,8 @@ export class CommentRepository {
     const data = await queryBuilder.getMany();
 
     const total = await queryBuilder
-      .where('comment.post_id = :post_id', {
-        post_id: query.post_id,
+      .where('comment.post_id = :postId', {
+        postId: query.postId,
       })
       .getCount();
 
@@ -121,20 +121,20 @@ export class CommentRepository {
   }
 
   async countCommentsByOptions(query: {
-    post_id?: string;
-    parent_id?: string;
+    postId?: string;
+    parentId?: string;
   }): Promise<number> {
     const queryBuilder = this.commentRepository.createQueryBuilder('comment');
 
-    if (query.post_id) {
+    if (query?.postId) {
       queryBuilder.where('comment.post_id = :post_id', {
-        post_id: query.post_id,
+        post_id: query.postId,
       });
     }
 
-    if (query.parent_id) {
+    if (query?.parentId) {
       queryBuilder.where('comment.parent_id = :parent_id', {
-        parent_id: query.parent_id,
+        parent_id: query.parentId,
       });
     }
 
@@ -157,18 +157,18 @@ export class CommentRepository {
   }
 
   async delete(entity: CommentEntity): Promise<void> {
-    if (entity?.post_id) {
+    if (entity?.postId) {
       await this.postRepository.decrement(
-        { id: entity.post_id },
-        'total_comments',
+        { id: entity.postId },
+        'totalComments',
         1,
       );
     }
 
-    if (entity?.parent_id) {
+    if (entity?.parentId) {
       await this.commentRepository.decrement(
-        { id: entity.parent_id },
-        'total_comments',
+        { id: entity.parentId },
+        'totalComments',
         1,
       );
     }
