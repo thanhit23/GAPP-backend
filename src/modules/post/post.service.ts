@@ -18,23 +18,24 @@ import type { PostPageOptionsDto } from './dtos/post-page-options.dto.ts';
 export class PostService {
   constructor(
     private postRepository: PostRepository,
-    @InjectQueue('post-queue') private postQueue: Queue,
+    @InjectQueue('post-queue')
+    private postQueue: Queue,
   ) {}
 
   @Transactional()
   async createPost(
-    user_id: string,
+    userId: string,
     createPostDto: CreatePostDto,
   ): Promise<PostEntity> {
     const entityPost = await this.postRepository.createPost(
-      user_id,
+      userId,
       createPostDto,
     );
 
     await this.postQueue.add(
       'fan-out-post',
       {
-        userId: user_id,
+        userId,
         postId: entityPost.id,
       },
       {
@@ -52,9 +53,9 @@ export class PostService {
 
   async getAllPost(
     postPageOptionsDto: PostPageOptionsDto,
-    user_id: string,
+    userId: string,
   ): Promise<PageDto<PostDto>> {
-    return await this.postRepository.getAllPost(postPageOptionsDto, user_id);
+    return await this.postRepository.getAllPost(postPageOptionsDto, userId);
   }
 
   async findOne(
@@ -72,6 +73,7 @@ export class PostService {
 
     return postEntity;
   }
+
   async getByUsername(
     postPageOptionsDto: PostPageOptionsDto,
     username: string,

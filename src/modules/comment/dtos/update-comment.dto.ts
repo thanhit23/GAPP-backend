@@ -1,6 +1,6 @@
 import { StringField } from '../../../decorators/field.decorators.ts';
 
-export class CreateNewsFeedDto {
+export class UpdateCommentDto {
   @StringField()
-  postId!: string;
+  content!: string;
 }

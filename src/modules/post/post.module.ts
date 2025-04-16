@@ -17,7 +17,16 @@ import { FollowEntity } from '../follows/follow.entity.ts';
 import { NewsFeedRepository } from '../news-feed/news-feed.repository.ts';
 import { NewsFeedModule } from '../news-feed/news-feed.module.ts';
 import { NewsFeedEntity } from '../news-feed/news-feed.entity.ts';
-import { RedisModule } from '../redis/redis.module.ts';
+import { LikeService } from '../like/like.service.ts';
+import { LikeRepository } from '../like/like.repository.ts';
+import { LikeEntity } from '../like/like.entity.ts';
+import { CommentService } from '../comment/comment.service.ts';
+import { CommentRepository } from '../comment/comment.repository.ts';
+import { CommentEntity } from '../comment/comment.entity.ts';
+
+const InitBullModule = BullModule.registerQueue({
+  name: 'post-queue',
+});
 
 @Module({
   imports: [
@@ -26,12 +35,11 @@ import { RedisModule } from '../redis/redis.module.ts';
       NewsFeedEntity,
       FollowEntity,
       UserEntity,
+      LikeEntity,
+      CommentEntity,
     ]),
     forwardRef(() => NewsFeedModule),
-    BullModule.registerQueue({
-      name: 'post-queue',
-    }),
-    RedisModule,
+    InitBullModule,
   ],
   providers: [
     PostService,
@@ -43,8 +51,12 @@ import { RedisModule } from '../redis/redis.module.ts';
     FollowRepository,
     UserService,
     UserRepository,
+    LikeService,
+    LikeRepository,
+    CommentService,
+    CommentRepository,
   ],
   controllers: [PostController],
-  exports: [PostService, PostRepository, TypeOrmModule],
+  exports: [PostService, PostRepository, TypeOrmModule, InitBullModule],
 })
 export class PostModule {}

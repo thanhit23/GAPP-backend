@@ -22,7 +22,7 @@ import {
 import { FollowUserDto } from './dtos/create-follow.dto.ts';
 import { PageOptionsDto } from '../../common/dto/page-options.dto.ts';
 
-@Controller('follower')
+@Controller('follows')
 export class FollowerController {
   constructor(private followService: FollowService) {}
 

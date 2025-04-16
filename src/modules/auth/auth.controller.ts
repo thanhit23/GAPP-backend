@@ -21,7 +21,7 @@ import {
   LoginTransformer,
   RegisterTransformer,
 } from '../../transformer/auth.transformer.ts';
-import { UserNotFoundException } from 'exceptions/user-not-found.exception.ts';
+import { UserNotFoundException } from '../../exceptions/user-not-found.exception.ts';
 
 @Controller('auth')
 export class AuthController {

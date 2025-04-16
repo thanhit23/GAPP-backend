@@ -36,12 +36,12 @@ export class PostRepository {
 
   async getAllPost(
     postPageOptionsDto: PostPageOptionsDto,
-    user_id: string,
+    userId: string,
   ): Promise<PageDto<PostDto>> {
     const queryBuilder = this.postRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.user', 'user')
-      .where('post.user_id = :user_id', { user_id })
+      .where('post.userId = :userId', { userId })
       .select(['post', 'user.avatar', 'user.username', 'user.id', 'user.name'])
       .groupBy('post.id, user.id');
 

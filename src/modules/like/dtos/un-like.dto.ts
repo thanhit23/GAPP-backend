@@ -3,10 +3,13 @@ import {
   StringFieldOptional,
 } from '../../../decorators/field.decorators.ts';
 
-export class CreatePostDto {
+export class UnLikeDto {
   @StringField()
-  content!: string;
+  userId!: string;
 
   @StringFieldOptional()
-  image?: string;
+  postId?: string;
+
+  @StringFieldOptional()
+  commentId?: string;
 }
