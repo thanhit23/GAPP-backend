@@ -21,6 +21,7 @@ import {
 } from '../../transformer/news-feed.transformer.ts';
 import { FollowUserDto } from './dtos/create-follow.dto.ts';
 import { PageOptionsDto } from '../../common/dto/page-options.dto.ts';
+import { UnfollowDto } from './dtos/unfollow.dto.ts';
 
 @Controller('follows')
 export class FollowerController {
@@ -55,9 +56,9 @@ export class FollowerController {
     return new GetSingleNewsFeedTransformer(entity);
   }
 
-  @Delete(':id')
+  @Delete()
   @Auth([RoleType.USER])
-  async delete(@Param('id') id: string) {
-    return await this.followService.unfollow(id);
+  async delete(@Body() body: UnfollowDto) {
+    return await this.followService.unfollow(body);
   }
 }

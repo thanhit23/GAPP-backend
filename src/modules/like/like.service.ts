@@ -23,7 +23,7 @@ export class LikeService {
     }
 
     if (entityDto.postId) {
-      await this.postService.getSinglePost(entityDto.postId);
+      await this.postService.getSinglePost(entityDto.postId, entityDto.userId!);
     }
 
     if (entityDto.commentId) {

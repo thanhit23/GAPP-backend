@@ -1,8 +1,8 @@
 import { BadRequestException, HttpStatus } from '@nestjs/common';
 
 interface ExistedExceptionError {
-  message: string;
-  type: string;
+  message?: string;
+  type?: string;
 }
 export class ExistedException extends BadRequestException {
   constructor(error?: ExistedExceptionError) {

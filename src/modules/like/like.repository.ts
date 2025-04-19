@@ -22,7 +22,7 @@ export class LikeRepository {
 
   @Transactional()
   async like(entityDto: CreateLikeDto): Promise<LikeEntity> {
-    const entity = this.likeRepository.create(entityDto);
+    const entity = await this.likeRepository.create(entityDto);
 
     await this.likeRepository.save(entity);
 
@@ -61,9 +61,23 @@ export class LikeRepository {
   }): Promise<LikeEntity[]> {
     return await this.likeRepository
       .createQueryBuilder('likes')
-      .where('likes.user_id = :user_id', { user_id: params.userId })
-      .where('likes.post_id IN (:...post_ids)', { post_ids: params.postIds })
-      .select(['likes.post_id'])
+      .where('likes.userId = :userId', { userId: params.userId })
+      .where('likes.postId IN (:...postIds)', { postIds: params.postIds })
+      .select(['likes.postId'])
+      .getMany();
+  }
+
+  async getListCommentLiked(params: {
+    userId: string;
+    commentIds: string[];
+  }): Promise<LikeEntity[]> {
+    return await this.likeRepository
+      .createQueryBuilder('likes')
+      .where('likes.userId = :user_id', { user_id: params.userId })
+      .where('likes.commentId IN (:...commentIds)', {
+        commentIds: params.commentIds,
+      })
+      .select(['likes.commentId'])
       .getMany();
   }
 

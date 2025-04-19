@@ -16,6 +16,7 @@ import { UpdateCommentDto } from './dtos/update-comment.dto.ts';
 import { GetCommentDto } from './dtos/get-comment.dto';
 import {
   CreateCommentTransformer,
+  GetCommentByIdTransformer,
   GetCommentByOptionTransformer,
 } from '../../transformer/comment.transformer.ts';
 import { UserEntity } from '../../modules/user/user.entity.ts';
@@ -43,10 +44,21 @@ export class CommentController {
   async getByOptions(
     @Query()
     query: GetCommentDto,
+    @AuthUser() user: UserEntity,
   ): Promise<GetCommentByOptionTransformer> {
-    const entity = await this.commentService.getByOptions(query);
+    const entity = await this.commentService.getByOptions(query, user.id);
 
     return new GetCommentByOptionTransformer(entity);
+  }
+
+  @Get(':id')
+  @Auth([RoleType.USER])
+  async getById(
+    @UUIDParam('id') id: string,
+  ): Promise<GetCommentByIdTransformer> {
+    const entity = await this.commentService.getById(id);
+
+    return new GetCommentByIdTransformer(entity);
   }
 
   @Put(':id')

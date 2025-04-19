@@ -13,11 +13,13 @@ import type { PostDto } from './dtos/post.dto.ts';
 import type { PageDto } from '../../common/dto/page.dto.ts';
 import type { UpdatePostDto } from './dtos/update-post.dto.ts';
 import type { PostPageOptionsDto } from './dtos/post-page-options.dto.ts';
+import { LikeRepository } from '../like/like.repository.ts';
 
 @Injectable()
 export class PostService {
   constructor(
     private postRepository: PostRepository,
+    private likeRepository: LikeRepository,
     @InjectQueue('post-queue')
     private postQueue: Queue,
   ) {}
@@ -64,14 +66,22 @@ export class PostService {
     return await this.postRepository.findOne(optionsDto);
   }
 
-  async getSinglePost(id: string): Promise<PostEntity> {
-    const postEntity = await this.postRepository.getSinglePost(id);
+  async getSinglePost(
+    postId: string,
+    userId: string,
+  ): Promise<PostEntity & { isLiked: boolean }> {
+    const postEntity = await this.postRepository.getSinglePost(postId);
+
+    const userLiked = await this.likeRepository.checkLike({ userId, postId });
 
     if (!postEntity) {
       throw new PostNotFoundException();
     }
 
-    return postEntity;
+    return {
+      ...postEntity,
+      isLiked: !!userLiked,
+    };
   }
 
   async getByUsername(

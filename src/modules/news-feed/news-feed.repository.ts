@@ -11,6 +11,8 @@ import { CreateNewsFeedDto } from './dtos/create-news-feed.dto.ts';
 import { UpdateNewsFeedDto } from './dtos/update-news-feed.dto.ts';
 import { LikeRepository } from '../like/like.repository';
 import { LikeEntity } from '../../modules/like/like.entity.ts';
+import { FollowEntity } from '../follows/follow.entity.ts';
+import { FollowRepository } from '../follows/follow.repository.ts';
 
 type NewsFeedDto = CreateNewsFeedDto & { userId: string };
 
@@ -20,6 +22,7 @@ export class NewsFeedRepository {
     @InjectRepository(NewsFeedEntity)
     private newsFeedRepository: Repository<NewsFeedEntity>,
     private likeRepository: LikeRepository,
+    private followRepository: FollowRepository,
   ) {}
 
   @Transactional()
@@ -44,6 +47,7 @@ export class NewsFeedRepository {
     pageOptionsDto: NewsFeedPageOptionsDto,
   ): Promise<PageDto<NewsFeedEntity>> {
     let listPostLiked: LikeEntity[] = [];
+    let listFollowed: FollowEntity[] = [];
 
     const queryBuilder = this.newsFeedRepository
       .createQueryBuilder('news_feed')
@@ -65,6 +69,8 @@ export class NewsFeedRepository {
 
     const postIds = data.map((item) => item.postId);
 
+    const userIds = data.map((item) => item.userId);
+
     if (!_.isEmpty(postIds)) {
       listPostLiked = await this.likeRepository.getListPostLiked({
         userId,
@@ -72,15 +78,25 @@ export class NewsFeedRepository {
       });
     }
 
+    if (!_.isEmpty(userIds)) {
+      listFollowed = await this.followRepository.getListFollowingLiked({
+        userId,
+        userIds,
+      });
+    }
+
     const dataList = data.map((item) => {
-      const is_liked = listPostLiked.some(
-        (like) => like.postId === item.postId,
+      const isLiked = listPostLiked.some((like) => like.postId === item.postId);
+
+      const hasFollowed = listFollowed.some(
+        (c) => c.targetUserId === item.userId,
       );
 
       return {
         ...item,
         post: {
-          is_liked,
+          isLiked,
+          hasFollowed,
           ...item.post,
         },
       };

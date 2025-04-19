@@ -9,17 +9,25 @@ import { UserRepository } from '../user/user.repository.ts';
 import { FollowUserDto } from './dtos/create-follow.dto.ts';
 import { PageOptionsDto } from '../../common/dto/page-options.dto.ts';
 import { UserNotFoundException } from '../../exceptions/user-not-found.exception.ts';
+import { UnfollowDto } from './dtos/unfollow.dto.ts';
+import { ExistedException } from '../../exceptions/existed.exception.ts';
 
 @Injectable()
 export class FollowRepository {
   constructor(
     @InjectRepository(FollowEntity)
-    private followRepository: Repository<FollowEntity>,
+    private readonly followRepository: Repository<FollowEntity>,
     private userRepository: UserRepository,
   ) {}
 
   @Transactional()
   async createFollow(followDto: FollowUserDto): Promise<FollowEntity> {
+    const followExist = await this.getFollowByFollower(followDto);
+
+    if (followExist) {
+      throw new ExistedException({ message: 'Follow already exists' });
+    }
+
     const sourceUser = await this.userRepository.getUser(
       followDto.sourceUserId,
     );
@@ -29,6 +37,14 @@ export class FollowRepository {
     if (!targeUser || !sourceUser) {
       throw new UserNotFoundException();
     }
+
+    await this.userRepository.updateUser(targeUser, {
+      totalFollower: targeUser.totalFollower + 1,
+    });
+
+    await this.userRepository.updateUser(sourceUser, {
+      totalFollowing: sourceUser.totalFollowing + 1,
+    });
 
     const entity = this.followRepository.create(followDto);
 
@@ -40,7 +56,7 @@ export class FollowRepository {
   async getPaginatedFollowers(
     pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<FollowEntity>> {
-    const queryBuilder = this.followRepository.createQueryBuilder('news_feed');
+    const queryBuilder = this.followRepository.createQueryBuilder('follows');
 
     const [data, meta] = await queryBuilder.paginate(pageOptionsDto);
 
@@ -49,8 +65,21 @@ export class FollowRepository {
 
   async getFollower(id: string): Promise<FollowEntity | null> {
     const queryBuilder = this.followRepository
-      .createQueryBuilder('news_feed')
-      .where('news_feed.id = :id', { id });
+      .createQueryBuilder('follow')
+      .where('follow.id = :id', { id });
+
+    return await queryBuilder.getOne();
+  }
+
+  async getFollowByFollower(params: UnfollowDto): Promise<FollowEntity | null> {
+    const queryBuilder = this.followRepository
+      .createQueryBuilder('follow')
+      .where('follow.sourceUserId = :sourceUserId', {
+        sourceUserId: params.sourceUserId,
+      })
+      .andWhere('follow.targetUserId = :targetUserId', {
+        targetUserId: params.targetUserId,
+      });
 
     return await queryBuilder.getOne();
   }
@@ -70,6 +99,20 @@ export class FollowRepository {
       .getCount();
   }
 
+  async getListFollowingLiked(params: {
+    userId: string;
+    userIds: string[];
+  }): Promise<FollowEntity[]> {
+    return await this.followRepository
+      .createQueryBuilder('follow')
+      .where('follow.sourceUserId = :userId', { userId: params.userId })
+      .where('follow.targetUserId IN (:...targetUserId)', {
+        targetUserId: params.userIds,
+      })
+      .select(['follow.targetUserId'])
+      .getMany();
+  }
+
   async getFollowing(userId: string): Promise<FollowEntity[]> {
     return await this.followRepository
       .createQueryBuilder('follow')
@@ -79,6 +122,15 @@ export class FollowRepository {
   }
 
   async unfollow(entity: FollowEntity): Promise<void> {
+    await this.userRepository.increment({
+      id: entity.sourceUserId,
+      name: 'totalFollowing',
+    });
+    await this.userRepository.increment({
+      id: entity.targetUserId,
+      name: 'totalFollower',
+    });
+
     await this.followRepository.remove(entity);
   }
 }

@@ -53,7 +53,16 @@ export class PostRepository {
   async getSinglePost(id: string): Promise<PostEntity | null> {
     const queryBuilder = this.postRepository
       .createQueryBuilder('post')
-      .where('post.id = :id', { id });
+      .where('post.id = :id', { id })
+      .innerJoinAndSelect('post.user', 'user')
+      .select([
+        'post',
+        'user.avatar',
+        'user.name',
+        'user.username',
+        'user.id',
+        'user.name',
+      ]);
 
     return await queryBuilder.getOne();
   }

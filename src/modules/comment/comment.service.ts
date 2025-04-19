@@ -26,8 +26,11 @@ export class CommentService {
     return await this.commentRepository.creation(entityDto);
   }
 
-  async getByOptions(query: GetCommentDto): Promise<GetCommentCursor> {
-    return await this.commentRepository.getByOptions(query);
+  async getByOptions(
+    query: GetCommentDto,
+    userId: string,
+  ): Promise<GetCommentCursor> {
+    return await this.commentRepository.getByOptions(query, userId);
   }
 
   async countCommentsByOptions(query: {

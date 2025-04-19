@@ -33,6 +33,12 @@ export class UserEntity extends AbstractEntity {
   @Column({ nullable: true, type: 'varchar' })
   bio!: string | null;
 
+  @Column({ name: 'total_following', type: 'int', default: 0 })
+  totalFollowing!: number;
+
+  @Column({ name: 'total_follower', type: 'int', default: 0 })
+  totalFollower!: number;
+
   @OneToMany(() => PostEntity, (entity) => entity.user)
   posts?: PostEntity[];
 

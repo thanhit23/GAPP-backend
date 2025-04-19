@@ -1,12 +1,9 @@
 import { StringFieldOptional } from '../../../decorators/field.decorators.ts';
 
-export class UnLikeDto {
+export class UnfollowDto {
   @StringFieldOptional()
-  userId?: string;
+  sourceUserId?: string;
 
   @StringFieldOptional()
-  postId?: string;
-
-  @StringFieldOptional()
-  commentId?: string;
+  targetUserId?: string;
 }

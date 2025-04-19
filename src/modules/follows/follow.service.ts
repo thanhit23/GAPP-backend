@@ -7,6 +7,7 @@ import { PageOptionsDto } from '../../common/dto/page-options.dto.ts';
 import { FollowNotFoundException } from './exceptions/follow-not-found.exception.ts';
 
 import type { PageDto } from '../../common/dto/page.dto.ts';
+import { UnfollowDto } from './dtos/unfollow.dto.ts';
 
 @Injectable()
 export class FollowService {
@@ -40,8 +41,8 @@ export class FollowService {
     return await this.followRepository.getCountFollowersByUserId(id);
   }
 
-  async unfollow(id: string): Promise<boolean> {
-    const entity = await this.followRepository.getFollower(id);
+  async unfollow(body: UnfollowDto): Promise<boolean> {
+    const entity = await this.followRepository.getFollowByFollower(body);
 
     if (!entity) {
       throw new FollowNotFoundException();

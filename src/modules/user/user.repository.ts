@@ -21,6 +21,10 @@ export class UserRepository {
     return this.userRepository.findOneBy(findData);
   }
 
+  async increment(params: { id: string; name: string }): Promise<void> {
+    await this.userRepository.increment({ id: params.id }, params.name, 1);
+  }
+
   async findByOption(
     options: Partial<{ username: string; email: string }>,
   ): Promise<UserEntity | null> {

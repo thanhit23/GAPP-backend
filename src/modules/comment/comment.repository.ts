@@ -10,6 +10,10 @@ import { CreateCommentDto } from './dtos/create-comment.dto';
 import { UpdateCommentDto } from './dtos/update-comment.dto';
 import { PostEntity } from '../post/post.entity';
 import { GetCommentDto } from './dtos/get-comment.dto';
+import { LikeRepository } from '../like/like.repository';
+import { LikeEntity } from '../like/like.entity';
+import { FollowRepository } from '../follows/follow.repository';
+import { FollowEntity } from 'modules/follows/follow.entity';
 
 export interface GetCommentCursor {
   data: CommentEntity[];
@@ -26,6 +30,8 @@ export class CommentRepository {
     private commentRepository: Repository<CommentEntity>,
     @InjectRepository(PostEntity)
     private postRepository: Repository<PostEntity>,
+    private likeRepository: LikeRepository,
+    private followRepository: FollowRepository,
   ) {}
 
   @Transactional()
@@ -53,7 +59,13 @@ export class CommentRepository {
     return entity;
   }
 
-  async getByOptions(query: GetCommentDto): Promise<GetCommentCursor> {
+  async getByOptions(
+    query: GetCommentDto,
+    userId: string,
+  ): Promise<GetCommentCursor> {
+    let listCommentLiked: LikeEntity[] = [];
+    let listFollowed: FollowEntity[] = [];
+
     const queryBuilder = this.commentRepository
       .createQueryBuilder('comment')
       .innerJoin('comment.user', 'user');
@@ -90,14 +102,20 @@ export class CommentRepository {
         'user.name',
         'user.username',
         'user.avatar',
+        'user.bio',
+        'user.totalFollowing',
+        'user.totalFollower',
       ])
       .orderBy('comment.createdAt', 'DESC')
       .addOrderBy('comment.id', 'DESC');
 
     const limit = query.limit || 10;
+
     queryBuilder.take(limit + 1);
 
     const data = await queryBuilder.getMany();
+
+    const hasMore = data.length > limit;
 
     const total = await queryBuilder
       .where('comment.post_id = :postId', {
@@ -105,14 +123,44 @@ export class CommentRepository {
       })
       .getCount();
 
-    const hasMore = data.length > limit;
-
     if (hasMore) {
       data.pop();
     }
 
+    const commentIds = data.map((item) => item.id) as string[];
+
+    const userIds = data.map((item) => item.userId) as string[];
+
+    if (!_.isEmpty(commentIds)) {
+      listCommentLiked = await this.likeRepository.getListCommentLiked({
+        userId,
+        commentIds,
+      });
+    }
+
+    if (!_.isEmpty(userIds)) {
+      listFollowed = await this.followRepository.getListFollowingLiked({
+        userId,
+        userIds,
+      });
+    }
+
+    const dataList = data.map((item) => {
+      const isLiked = listCommentLiked.some((c) => c.commentId === item.id);
+
+      const hasFollowed = listFollowed.some(
+        (c) => c.targetUserId === item.userId,
+      );
+
+      return {
+        isLiked,
+        hasFollowed,
+        ...item,
+      };
+    });
+
     return {
-      data,
+      data: dataList,
       meta: {
         hasMore,
         total,
@@ -144,6 +192,7 @@ export class CommentRepository {
   async getById(id: string): Promise<CommentEntity | null> {
     return await this.commentRepository.findOne({
       where: { id },
+      relations: ['user'],
     });
   }
 
