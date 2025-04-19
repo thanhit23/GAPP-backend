@@ -35,13 +35,13 @@ export class NewsFeedController {
   @Post()
   @Auth([RoleType.USER])
   @HttpCode(HttpStatus.CREATED)
-  async createNewsFeed(
+  async creation(
     @Body() newsFeedDto: CreateNewsFeedDto,
     @AuthUser() user: UserEntity,
   ): Promise<CreateNewsFeedTransformer> {
-    const entity = await this.newsFeedService.createNewsFeed({
+    const entity = await this.newsFeedService.creation({
       ...newsFeedDto,
-      user_id: user.id,
+      userId: user.id,
     });
 
     return new CreateNewsFeedTransformer(entity);

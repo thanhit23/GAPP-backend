@@ -5,16 +5,16 @@ import type { AbstractEntity } from '../../../common/abstract.entity.ts';
 
 export class FollowRelationDto extends AbstractDto {
   @StringField()
-  source_user_id!: string;
+  sourceUserId!: string;
 
   @StringField()
-  target_user_id!: string;
+  targetUserId!: string;
 
   constructor(entity: AbstractEntity & FollowEntity) {
     super(entity);
     this.id = entity.id;
-    this.source_user_id = entity.source_user_id;
-    this.target_user_id = entity.target_user_id;
+    this.sourceUserId = entity.sourceUserId;
+    this.targetUserId = entity.targetUserId;
     this.createdAt = entity.createdAt;
     this.updatedAt = entity.updatedAt;
   }

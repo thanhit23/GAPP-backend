@@ -34,6 +34,12 @@ export class UserDto extends AbstractDto {
   @StringField()
   password!: string;
 
+  @StringFieldOptional()
+  totalFollowing?: number;
+
+  @StringFieldOptional()
+  totalFollower?: number;
+
   @StringFieldOptional({ nullable: true })
   bio?: string | null;
 
@@ -45,7 +51,10 @@ export class UserDto extends AbstractDto {
     this.email = user.email || '';
     this.name = user.name || '';
     this.username = user.username;
+    this.bio = user.bio || '';
     this.password = user.password || '';
+    this.totalFollowing = user.totalFollowing;
+    this.totalFollower = user.totalFollower;
     this.address = user.address;
     this.avatar = user.avatar;
     this.isActive = options?.isActive;

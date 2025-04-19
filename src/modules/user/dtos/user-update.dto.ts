@@ -12,4 +12,10 @@ export class UpdateUserDto {
 
   @StringFieldOptional()
   readonly password?: string;
+
+  @StringFieldOptional()
+  readonly totalFollowing?: number;
+
+  @StringFieldOptional()
+  readonly totalFollower?: number;
 }

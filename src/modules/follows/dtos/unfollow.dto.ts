@@ -1,9 +1,9 @@
 import { StringFieldOptional } from '../../../decorators/field.decorators.ts';
 
-export class FollowUpdateDto {
+export class UnfollowDto {
   @StringFieldOptional()
-  sourceUserId!: string;
+  sourceUserId?: string;
 
   @StringFieldOptional()
-  targetUserId!: string;
+  targetUserId?: string;
 }

@@ -9,23 +9,23 @@ import { AbstractEntity } from '../../common/abstract.entity.ts';
 @Entity({ name: 'news_feed' })
 @UseDto(NewsFeedDto)
 export class NewsFeedEntity extends AbstractEntity {
-  @Column({ type: 'char' })
-  user_id!: string;
+  @Column({ name: 'user_id', type: 'char' })
+  userId!: string;
 
-  @Column({ type: 'char' })
-  post_id!: string;
+  @Column({ name: 'post_id', type: 'char' })
+  postId!: string;
 
   @ManyToOne(() => UserEntity, (entity) => entity.newsfeed, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
+  @JoinColumn({ name: 'user_id' })
+  user!: Relation<UserEntity>;
+
   @ManyToOne(() => PostEntity, (entity) => entity.newsfeed, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'post_id' })
   post!: Relation<PostEntity>;
-
-  @JoinColumn({ name: 'user_id' })
-  user!: Relation<UserEntity>;
 }
