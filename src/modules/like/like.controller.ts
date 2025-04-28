@@ -3,8 +3,8 @@ import { Body, Controller, Delete, Post } from '@nestjs/common';
 import { LikeService } from './like.service.ts';
 import { RoleType } from '../../constants/role-type.ts';
 import { Auth } from '../../decorators/http.decorators.ts';
-import { CreateLikeDto } from './dtos/create-like.dto.ts';
-import { UnLikeDto } from './dtos/un-like.dto.ts';
+import { AddLike } from './dtos/create-like.dto.ts';
+import { Unlike } from './dtos/un-like.dto.ts';
 import { CreateLikeTransformer } from '../../transformer/like.transformer.ts';
 import { UserEntity } from '../../modules/user/user.entity.ts';
 import { AuthUser } from '../../decorators/auth-user.decorator.ts';
@@ -16,7 +16,7 @@ export class LikeController {
   @Post()
   @Auth([RoleType.USER])
   async like(
-    @Body() body: CreateLikeDto,
+    @Body() body: AddLike,
     @AuthUser() user: UserEntity,
   ): Promise<CreateLikeTransformer> {
     const entity = await this.likeService.like({ ...body, userId: user.id });
@@ -26,7 +26,7 @@ export class LikeController {
 
   @Delete()
   @Auth([RoleType.USER])
-  async unLike(@Body() body: UnLikeDto): Promise<boolean> {
-    return await this.likeService.unLike(body);
+  async unlike(@Body() body: Unlike): Promise<boolean> {
+    return await this.likeService.unlike(body);
   }
 }

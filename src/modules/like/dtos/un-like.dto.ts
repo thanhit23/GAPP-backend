@@ -1,6 +1,6 @@
 import { StringFieldOptional } from '../../../decorators/field.decorators.ts';
 
-export class UnLikeDto {
+export class Unlike {
   @StringFieldOptional()
   userId?: string;
 

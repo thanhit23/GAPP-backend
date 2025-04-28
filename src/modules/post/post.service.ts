@@ -72,7 +72,7 @@ export class PostService {
   ): Promise<PostEntity & { isLiked: boolean }> {
     const postEntity = await this.postRepository.getSinglePost(postId);
 
-    const userLiked = await this.likeRepository.checkLike({ userId, postId });
+    const userLiked = await this.likeRepository.isLiked({ userId, postId });
 
     if (!postEntity) {
       throw new PostNotFoundException();

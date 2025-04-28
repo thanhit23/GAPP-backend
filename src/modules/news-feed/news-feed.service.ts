@@ -18,12 +18,15 @@ export class NewsFeedService {
     @Inject('REDIS_CLIENT') private readonly redisClient: Redis,
   ) {}
 
-  async creation(
+  async create(
     newsFeedDto: CreateNewsFeedDto & { userId: string },
   ): Promise<NewsFeedEntity> {
-    await this.postService.getSinglePost(newsFeedDto.postId);
+    await this.postService.getSinglePost(
+      newsFeedDto.postId,
+      newsFeedDto.userId,
+    );
 
-    return await this.newsFeedRepository.creation(newsFeedDto);
+    return await this.newsFeedRepository.create(newsFeedDto);
   }
 
   async deleteRedisKeysByPattern(match: string) {
@@ -51,7 +54,7 @@ export class NewsFeedService {
     const postIds = keys.map((key) => key.split(':').pop() as string);
 
     const nonExistentPostIds =
-      await this.newsFeedRepository.findNonExistentPostIds(postIds);
+      await this.newsFeedRepository.findNonExistentPostIds(postIds, userId);
 
     const postEntity = nonExistentPostIds.map((postId) => ({
       postId,
@@ -88,7 +91,10 @@ export class NewsFeedService {
       throw new NewsFeedNotFoundException();
     }
 
-    await this.postService.getSinglePost(updateNewsFeedDto.postId);
+    await this.postService.getSinglePost(
+      updateNewsFeedDto.postId,
+      updateNewsFeedDto.userId,
+    );
 
     await this.newsFeedRepository.updateNewsFeed(entity, updateNewsFeedDto);
 

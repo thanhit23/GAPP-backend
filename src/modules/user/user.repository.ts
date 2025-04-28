@@ -25,6 +25,10 @@ export class UserRepository {
     await this.userRepository.increment({ id: params.id }, params.name, 1);
   }
 
+  async decrement(params: { id: string; name: string }): Promise<void> {
+    await this.userRepository.decrement({ id: params.id }, params.name, 1);
+  }
+
   async findByOption(
     options: Partial<{ username: string; email: string }>,
   ): Promise<UserEntity | null> {
@@ -70,6 +74,20 @@ export class UserRepository {
     queryBuilder.where('users.id = :userId', { userId });
 
     return await queryBuilder.getOne();
+  }
+
+  async findSuggestedFollowers(userId: string): Promise<UserEntity[]> {
+    const queryBuilder = this.userRepository.createQueryBuilder('users');
+
+    queryBuilder
+      .where('users.id != :userId', { userId })
+      .andWhere(
+        'users.id NOT IN (SELECT follows.target_user_id FROM follows WHERE follows.source_user_id = :userId)',
+        { userId },
+      )
+      .limit(10);
+
+    return await queryBuilder.getMany();
   }
 
   async getUserByUsername(username: string): Promise<UserEntity | null> {

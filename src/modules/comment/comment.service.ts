@@ -14,16 +14,16 @@ export class CommentService {
     private postService: PostService,
   ) {}
 
-  async creation(entityDto: CreateCommentDto): Promise<CommentEntity> {
-    if (entityDto?.postId) {
-      await this.postService.getSinglePost(entityDto.postId);
+  async create(entityDto: CreateCommentDto): Promise<CommentEntity> {
+    if (entityDto?.postId && entityDto.userId) {
+      await this.postService.getSinglePost(entityDto.postId, entityDto.userId);
     }
 
     if (entityDto?.parentId) {
       await this.getById(entityDto.parentId);
     }
 
-    return await this.commentRepository.creation(entityDto);
+    return await this.commentRepository.create(entityDto);
   }
 
   async getByOptions(

@@ -33,7 +33,7 @@ export class FollowerController {
   async create(
     @Body() body: FollowUserDto,
   ): Promise<CreateNewsFeedTransformer> {
-    const entity = await this.followService.createFollow(body);
+    const entity = await this.followService.follow(body);
 
     return new CreateNewsFeedTransformer(entity);
   }

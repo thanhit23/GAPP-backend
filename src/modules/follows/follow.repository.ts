@@ -21,7 +21,7 @@ export class FollowRepository {
   ) {}
 
   @Transactional()
-  async createFollow(followDto: FollowUserDto): Promise<FollowEntity> {
+  async follow(followDto: FollowUserDto): Promise<FollowEntity> {
     const followExist = await this.getFollowByFollower(followDto);
 
     if (followExist) {
@@ -95,18 +95,18 @@ export class FollowRepository {
   async getCountFollowersByUserId(userId: string): Promise<number> {
     return await this.followRepository
       .createQueryBuilder('follow')
-      .where('follow.sourceUserId = :userId', { userId })
+      .where('follow.targetUserId = :userId', { userId })
       .getCount();
   }
 
-  async getListFollowingLiked(params: {
+  async getListFollowing(params: {
     userId: string;
     userIds: string[];
   }): Promise<FollowEntity[]> {
     return await this.followRepository
       .createQueryBuilder('follow')
       .where('follow.sourceUserId = :userId', { userId: params.userId })
-      .where('follow.targetUserId IN (:...targetUserId)', {
+      .andWhere('follow.targetUserId IN (:...targetUserId)', {
         targetUserId: params.userIds,
       })
       .select(['follow.targetUserId'])
@@ -122,11 +122,11 @@ export class FollowRepository {
   }
 
   async unfollow(entity: FollowEntity): Promise<void> {
-    await this.userRepository.increment({
+    await this.userRepository.decrement({
       id: entity.sourceUserId,
       name: 'totalFollowing',
     });
-    await this.userRepository.increment({
+    await this.userRepository.decrement({
       id: entity.targetUserId,
       name: 'totalFollower',
     });

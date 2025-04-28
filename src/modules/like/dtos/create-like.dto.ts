@@ -1,6 +1,6 @@
 import { StringFieldOptional } from '../../../decorators/field.decorators.ts';
 
-export class CreateLikeDto {
+export class AddLike {
   @StringFieldOptional()
   userId?: string;
 

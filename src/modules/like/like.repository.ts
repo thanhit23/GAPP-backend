@@ -5,8 +5,8 @@ import { Transactional } from 'typeorm-transactional';
 
 import { LikeEntity } from './like.entity';
 import { PostEntity } from '../post/post.entity';
-import { UnLikeDto } from './dtos/un-like.dto.ts';
-import { CreateLikeDto } from './dtos/create-like.dto';
+import { Unlike } from './dtos/un-like.dto.ts';
+import { AddLike } from './dtos/create-like.dto';
 import { CommentEntity } from '../comment/comment.entity';
 
 @Injectable()
@@ -21,7 +21,7 @@ export class LikeRepository {
   ) {}
 
   @Transactional()
-  async like(entityDto: CreateLikeDto): Promise<LikeEntity> {
+  async like(entityDto: AddLike): Promise<LikeEntity> {
     const entity = await this.likeRepository.create(entityDto);
 
     await this.likeRepository.save(entity);
@@ -45,8 +45,8 @@ export class LikeRepository {
     return entity;
   }
 
-  async checkLike(
-    entityDto: Partial<CreateLikeDto> & { id?: string },
+  async isLiked(
+    entityDto: Partial<AddLike> & { id?: string },
   ): Promise<LikeEntity | null> {
     const entity = await this.likeRepository.findOne({
       where: { ...entityDto },
@@ -82,7 +82,7 @@ export class LikeRepository {
   }
 
   @Transactional()
-  async unLike(payload: UnLikeDto): Promise<boolean> {
+  async unlike(payload: Unlike): Promise<boolean> {
     const entity = await this.likeRepository.findOne({ where: payload });
 
     if (!entity) {

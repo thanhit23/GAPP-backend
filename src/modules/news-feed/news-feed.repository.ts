@@ -26,7 +26,7 @@ export class NewsFeedRepository {
   ) {}
 
   @Transactional()
-  async creation(
+  async create(
     newsFeedDto: CreateNewsFeedDto & { userId: string },
   ): Promise<NewsFeedEntity> {
     const entity = this.newsFeedRepository.create(newsFeedDto);
@@ -69,7 +69,7 @@ export class NewsFeedRepository {
 
     const postIds = data.map((item) => item.postId);
 
-    const userIds = data.map((item) => item.userId);
+    const userIds = data.map((item) => item.post.userId);
 
     if (!_.isEmpty(postIds)) {
       listPostLiked = await this.likeRepository.getListPostLiked({
@@ -79,7 +79,7 @@ export class NewsFeedRepository {
     }
 
     if (!_.isEmpty(userIds)) {
-      listFollowed = await this.followRepository.getListFollowingLiked({
+      listFollowed = await this.followRepository.getListFollowing({
         userId,
         userIds,
       });
@@ -89,7 +89,7 @@ export class NewsFeedRepository {
       const isLiked = listPostLiked.some((like) => like.postId === item.postId);
 
       const hasFollowed = listFollowed.some(
-        (c) => c.targetUserId === item.userId,
+        (c) => c.targetUserId === item.post.userId,
       );
 
       return {
@@ -105,9 +105,12 @@ export class NewsFeedRepository {
     return { data: dataList, meta };
   }
 
-  async findNonExistentPostIds(postIds: string[]): Promise<string[]> {
+  async findNonExistentPostIds(
+    postIds: string[],
+    userId: string,
+  ): Promise<string[]> {
     const existingPosts = await this.newsFeedRepository.find({
-      where: { postId: In(postIds) },
+      where: { postId: In(postIds), userId },
       select: ['postId'],
     });
 

@@ -13,8 +13,8 @@ import { UnfollowDto } from './dtos/unfollow.dto.ts';
 export class FollowService {
   constructor(private followRepository: FollowRepository) {}
 
-  async createFollow(followDto: FollowUserDto): Promise<FollowEntity> {
-    return await this.followRepository.createFollow(followDto);
+  async follow(followDto: FollowUserDto): Promise<FollowEntity> {
+    return await this.followRepository.follow(followDto);
   }
 
   async getPaginatedFollowers(

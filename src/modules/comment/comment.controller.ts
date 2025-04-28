@@ -9,11 +9,11 @@ import {
 } from '@nestjs/common';
 
 import { CommentService } from './comment.service.ts';
+import { GetCommentDto } from './dtos/get-comment.dto';
 import { RoleType } from '../../constants/role-type.ts';
 import { CreateCommentDto } from './dtos/create-comment.dto.ts';
 import { Auth, UUIDParam } from '../../decorators/http.decorators.ts';
 import { UpdateCommentDto } from './dtos/update-comment.dto.ts';
-import { GetCommentDto } from './dtos/get-comment.dto';
 import {
   CreateCommentTransformer,
   GetCommentByIdTransformer,
@@ -28,11 +28,11 @@ export class CommentController {
 
   @Post()
   @Auth([RoleType.USER])
-  async creation(
+  async create(
     @Body() body: CreateCommentDto,
     @AuthUser() user: UserEntity,
   ): Promise<CreateCommentTransformer> {
-    const entity = await this.commentService.creation({
+    const entity = await this.commentService.create({
       ...body,
       userId: user.id,
     });

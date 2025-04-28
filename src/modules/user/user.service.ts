@@ -64,6 +64,12 @@ export class UserService {
     return userEntity;
   }
 
+  async findSuggestedFollowers(userId: string): Promise<UserEntity[]> {
+    const userEntity = await this.userRepository.findSuggestedFollowers(userId);
+
+    return userEntity;
+  }
+
   async getUserByUsername(
     username: string,
   ): Promise<(UserEntity & { countFollowers: number }) | null> {

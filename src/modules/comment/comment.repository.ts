@@ -18,8 +18,11 @@ import { FollowEntity } from 'modules/follows/follow.entity';
 export interface GetCommentCursor {
   data: CommentEntity[];
   meta: {
-    hasMore: boolean;
-    total: number;
+    hasNextPage: boolean;
+    nextCursor: {
+      id: string;
+      createdAt: string;
+    } | null;
   };
 }
 
@@ -35,7 +38,7 @@ export class CommentRepository {
   ) {}
 
   @Transactional()
-  async creation(entityDto: CreateCommentDto): Promise<CommentEntity> {
+  async create(entityDto: CreateCommentDto): Promise<CommentEntity> {
     const entity = this.commentRepository.create(entityDto);
 
     await this.commentRepository.save(entity);
@@ -66,38 +69,32 @@ export class CommentRepository {
     let listCommentLiked: LikeEntity[] = [];
     let listFollowed: FollowEntity[] = [];
 
-    const queryBuilder = this.commentRepository
-      .createQueryBuilder('comment')
-      .innerJoin('comment.user', 'user');
+    const queryBuilder = this.commentRepository.createQueryBuilder('comments');
+
+    queryBuilder.leftJoinAndSelect('comments.user', 'user');
+
+    if (query?.after) {
+      queryBuilder.where(
+        'comments.createdAt < (SELECT c2.created_at FROM comments AS c2 WHERE c2.id = :cursor)',
+        { cursor: query.after },
+      );
+    }
 
     if (query?.postId) {
-      queryBuilder.where('comment.postId = :postId', {
+      queryBuilder.andWhere('comments.postId = :postId', {
         postId: query.postId,
       });
     }
 
     if (query?.parentId) {
-      queryBuilder.where('comment.parentId = :parentId', {
+      queryBuilder.andWhere('comments.parentId = :parentId', {
         parentId: query.parentId,
       });
     }
 
-    if (query?.after) {
-      queryBuilder.andWhere(
-        `(
-        comment.createdAt < (SELECT c2.created_at FROM comments AS c2 WHERE c2.id = :after)
-        OR (
-          comment.createdAt = (SELECT c3.created_at FROM comments AS c3 WHERE c3.id = :after)
-          AND comment.id < :after
-        )
-      )`,
-        { after: query.after },
-      );
-    }
-
     queryBuilder
       .select([
-        'comment',
+        'comments',
         'user.id',
         'user.name',
         'user.username',
@@ -106,30 +103,15 @@ export class CommentRepository {
         'user.totalFollowing',
         'user.totalFollower',
       ])
-      .orderBy('comment.createdAt', 'DESC')
-      .addOrderBy('comment.id', 'DESC');
+      .orderBy('comments.createdAt', 'DESC');
 
-    const limit = query.limit || 10;
+    const { data, pagination } = await queryBuilder.cursorPaginate({
+      limit: Number(query.limit),
+    });
 
-    queryBuilder.take(limit + 1);
+    const commentIds = data.map((item: any) => item.id) as string[];
 
-    const data = await queryBuilder.getMany();
-
-    const hasMore = data.length > limit;
-
-    const total = await queryBuilder
-      .where('comment.post_id = :postId', {
-        postId: query.postId,
-      })
-      .getCount();
-
-    if (hasMore) {
-      data.pop();
-    }
-
-    const commentIds = data.map((item) => item.id) as string[];
-
-    const userIds = data.map((item) => item.userId) as string[];
+    const userIds = data.map((item: any) => item.userId) as string[];
 
     if (!_.isEmpty(commentIds)) {
       listCommentLiked = await this.likeRepository.getListCommentLiked({
@@ -139,18 +121,18 @@ export class CommentRepository {
     }
 
     if (!_.isEmpty(userIds)) {
-      listFollowed = await this.followRepository.getListFollowingLiked({
+      listFollowed = await this.followRepository.getListFollowing({
         userId,
         userIds,
       });
     }
 
-    const dataList = data.map((item) => {
+    const dataList = data.map((item: any) => {
       const isLiked = listCommentLiked.some((c) => c.commentId === item.id);
 
-      const hasFollowed = listFollowed.some(
-        (c) => c.targetUserId === item.userId,
-      );
+      const hasFollowed =
+        item.userId === userId ||
+        listFollowed.some((c) => c.targetUserId === item.userId);
 
       return {
         isLiked,
@@ -161,10 +143,7 @@ export class CommentRepository {
 
     return {
       data: dataList,
-      meta: {
-        hasMore,
-        total,
-      },
+      meta: pagination,
     };
   }
 

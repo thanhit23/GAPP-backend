@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import type { ObjectLiteral } from 'typeorm';
 import { Brackets, SelectQueryBuilder } from 'typeorm';
 
@@ -5,15 +6,14 @@ import type { AbstractEntity } from './common/abstract.entity';
 import { PageMetaDto } from './common/dto/page-meta.dto.ts';
 import type { PageOptionsDto } from './common/dto/page-options.dto';
 import type { KeyOfType } from './types';
+import { PageCursorOptionsDto } from 'common/dto/page-cursor-options.dto.ts';
 
 declare global {
   export type Uuid = string & { _uuidBrand: undefined };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-redundant-type-constituents
   export type Todo = any & { _todoBrand: undefined };
 }
 
 declare module 'typeorm' {
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   interface SelectQueryBuilder<Entity> {
     searchByString(
       q: string,
@@ -28,6 +28,11 @@ declare module 'typeorm' {
       pageOptionsDto: PageOptionsDto,
       options?: Partial<{ takeAll: boolean; skipCount: boolean }>,
     ): Promise<[Entity[], PageMetaDto]>;
+
+    cursorPaginate(
+      this: SelectQueryBuilder<Entity>,
+      pageOptionsDto: PageCursorOptionsDto,
+    ): Promise<any>;
 
     leftJoinAndSelect<AliasEntity extends AbstractEntity, A extends string>(
       this: SelectQueryBuilder<Entity>,
@@ -126,4 +131,40 @@ SelectQueryBuilder.prototype.paginate = async function (
   });
 
   return [entities, pageMetaDto];
+};
+
+SelectQueryBuilder.prototype.cursorPaginate = async function (
+  pageOptionsDto: PageCursorOptionsDto,
+) {
+  const { limit = 10 } = pageOptionsDto;
+
+  this.take(limit + 1);
+
+  const data = await this.getMany();
+
+  const total = await this.getCount();
+
+  const hasNextPage = data.length > limit;
+  if (hasNextPage) {
+    data.pop();
+  }
+
+  let nextCursor = null;
+  if (hasNextPage && data.length > 0) {
+    const lastPost = data[data.length - 1];
+
+    nextCursor = {
+      id: lastPost.id,
+      createdAt: lastPost.createdAt,
+    };
+  }
+
+  return {
+    data,
+    pagination: {
+      total,
+      hasNextPage,
+      nextCursor,
+    },
+  };
 };

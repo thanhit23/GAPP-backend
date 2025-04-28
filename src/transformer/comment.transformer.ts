@@ -10,9 +10,15 @@ export class CreateCommentTransformer extends BaseTransformer {
   }
 }
 
-export class GetCommentByOptionTransformer extends CreateCommentTransformer {}
+export class GetCommentByOptionTransformer extends BaseTransformer {
+  async data() {
+    const data = await this.resource;
 
-export class GetCommentByIdTransformer extends CreateCommentTransformer {
+    return { data };
+  }
+}
+
+export class GetCommentByIdTransformer extends BaseTransformer {
   async data() {
     const data = await this.resource;
 
