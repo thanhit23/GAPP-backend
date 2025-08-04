@@ -13,6 +13,7 @@ import { LikeRepository } from '../like/like.repository';
 import { LikeEntity } from '../../modules/like/like.entity.ts';
 import { FollowEntity } from '../follows/follow.entity.ts';
 import { FollowRepository } from '../follows/follow.repository.ts';
+// import { CommentRepository } from '../comment/comment.repository.ts';
 
 type NewsFeedDto = CreateNewsFeedDto & { userId: string };
 
@@ -23,6 +24,7 @@ export class NewsFeedRepository {
     private newsFeedRepository: Repository<NewsFeedEntity>,
     private likeRepository: LikeRepository,
     private followRepository: FollowRepository,
+    // private commentRepository: CommentRepository,
   ) {}
 
   @Transactional()
@@ -101,6 +103,32 @@ export class NewsFeedRepository {
         },
       };
     });
+    // const dataList = await Promise.all(
+    //   data.map(async (item) => {
+    //     const totalLike = await this.likeRepository.totalLike({
+    //       postId: item.postId,
+    //     });
+    //     const totalComment = await this.commentRepository.countCommentsByOptions({
+    //       postId: item.postId,
+    //     });
+    //     const isLiked = listPostLiked.some((like) => like.postId === item.postId);
+
+    //     const hasFollowed = listFollowed.some(
+    //       (c) => c.targetUserId === item.post.userId,
+    //     );
+
+    //     return {
+    //       ...item,
+    //       post: {
+    //         isLiked,
+    //         hasFollowed,
+    //         ...item.post,
+    //         totalLike,
+    //         totalComment,
+    //       },
+    //     };
+    //   }),
+    // );
 
     return { data: dataList, meta };
   }

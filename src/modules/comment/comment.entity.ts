@@ -1,4 +1,11 @@
-import { Column, Entity, JoinColumn, ManyToOne, type Relation } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  type Relation,
+} from 'typeorm';
 
 import { AbstractEntity } from '../../common/abstract.entity';
 import { UserEntity } from '../user/user.entity';
@@ -13,9 +20,11 @@ export class CommentEntity extends AbstractEntity {
   userId!: string;
 
   @Column({ name: 'post_id', type: 'char', nullable: true })
+  @Index('IDX_COMMENT_POST_ID')
   postId?: string;
 
   @Column({ name: 'parent_id', type: 'char', nullable: true })
+  @Index('IDX_COMMENT_PARENT_ID')
   parentId?: string;
 
   @Column({ type: 'varchar', length: 225 })

@@ -14,6 +14,7 @@ import { LikeRepository } from '../like/like.repository';
 import { LikeEntity } from '../like/like.entity';
 import { FollowRepository } from '../follows/follow.repository';
 import { FollowEntity } from 'modules/follows/follow.entity';
+import { PageOptionsDto } from 'common/dto/page-options.dto';
 
 export interface GetCommentCursor {
   data: CommentEntity[];
@@ -144,6 +145,84 @@ export class CommentRepository {
     return {
       data: dataList,
       meta: pagination,
+    };
+  }
+
+  async getWithOffsetPagination(
+    query: GetCommentDto & PageOptionsDto,
+    userId: string,
+  ): Promise<any> {
+    let listCommentLiked: LikeEntity[] = [];
+    let listFollowed: FollowEntity[] = [];
+
+    const queryBuilder = this.commentRepository.createQueryBuilder('comments');
+
+    queryBuilder.leftJoinAndSelect('comments.user', 'user');
+
+    if (query?.postId) {
+      queryBuilder.andWhere('comments.postId = :postId', {
+        postId: query.postId,
+      });
+    }
+
+    if (query?.parentId) {
+      queryBuilder.andWhere('comments.parentId = :parentId', {
+        parentId: query.parentId,
+      });
+    }
+
+    queryBuilder
+      .select([
+        'comments',
+        'user.id',
+        'user.name',
+        'user.username',
+        'user.avatar',
+        'user.bio',
+        'user.totalFollowing',
+        'user.totalFollower',
+      ])
+      .orderBy('comments.createdAt', 'DESC');
+
+    const [data, metadata] = await queryBuilder.paginate(query);
+
+    const commentIds = data.map((item: any) => item.id) as string[];
+
+    const userIds = data.map((item: any) => item.userId) as string[];
+
+    if (!_.isEmpty(commentIds)) {
+      listCommentLiked = await this.likeRepository.getListCommentLiked({
+        userId,
+        commentIds,
+      });
+    }
+
+    if (!_.isEmpty(userIds)) {
+      listFollowed = await this.followRepository.getListFollowing({
+        userId,
+        userIds,
+      });
+    }
+
+    const dataList = await Promise.all(
+      data.map(async (item: any) => {
+        const isLiked = listCommentLiked.some((c) => c.commentId === item.id);
+
+        const hasFollowed =
+          item.userId === userId ||
+          listFollowed.some((c) => c.targetUserId === item.userId);
+
+        return {
+          isLiked,
+          hasFollowed,
+          ...item,
+        };
+      }),
+    );
+
+    return {
+      data: dataList,
+      meta: metadata,
     };
   }
 

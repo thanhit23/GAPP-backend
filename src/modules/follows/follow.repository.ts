@@ -29,7 +29,7 @@ export class FollowRepository {
     }
 
     const sourceUser = await this.userRepository.getUser(
-      followDto.sourceUserId,
+      followDto.sourceUserId!,
     );
 
     const targeUser = await this.userRepository.getUser(followDto.targetUserId);
@@ -122,14 +122,16 @@ export class FollowRepository {
   }
 
   async unfollow(entity: FollowEntity): Promise<void> {
+    console.log('entity', entity);
+
     await this.userRepository.decrement({
       id: entity.sourceUserId,
       name: 'totalFollowing',
     });
-    await this.userRepository.decrement({
-      id: entity.targetUserId,
-      name: 'totalFollower',
-    });
+    // await this.userRepository.decrement({
+    //   id: entity.targetUserId,
+    //   name: 'totalFollower',
+    // });
 
     await this.followRepository.remove(entity);
   }

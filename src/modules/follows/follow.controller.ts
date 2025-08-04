@@ -22,6 +22,8 @@ import {
 import { FollowUserDto } from './dtos/create-follow.dto.ts';
 import { PageOptionsDto } from '../../common/dto/page-options.dto.ts';
 import { UnfollowDto } from './dtos/unfollow.dto.ts';
+import { AuthUser } from '../../decorators/auth-user.decorator.ts';
+import { UserEntity } from '../../modules/user/user.entity.ts';
 
 @Controller('follows')
 export class FollowerController {
@@ -32,8 +34,12 @@ export class FollowerController {
   @HttpCode(HttpStatus.CREATED)
   async create(
     @Body() body: FollowUserDto,
+    @AuthUser() user: UserEntity,
   ): Promise<CreateNewsFeedTransformer> {
-    const entity = await this.followService.follow(body);
+    const entity = await this.followService.follow({
+      ...body,
+      sourceUserId: user.id,
+    });
 
     return new CreateNewsFeedTransformer(entity);
   }
@@ -58,7 +64,10 @@ export class FollowerController {
 
   @Delete()
   @Auth([RoleType.USER])
-  async delete(@Body() body: UnfollowDto) {
-    return await this.followService.unfollow(body);
+  async delete(@Body() body: UnfollowDto, @AuthUser() user: UserEntity) {
+    return await this.followService.unfollow({
+      ...body,
+      sourceUserId: user.id,
+    });
   }
 }

@@ -55,6 +55,14 @@ export class LikeRepository {
     return entity;
   }
 
+  async totalLike(entityDto: any): Promise<number> {
+    const entity = await this.likeRepository.count({
+      where: { ...entityDto },
+    });
+
+    return entity;
+  }
+
   async getListPostLiked(params: {
     userId: string;
     postIds: string[];

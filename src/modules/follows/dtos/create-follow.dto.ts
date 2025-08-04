@@ -1,8 +1,11 @@
-import { StringField } from '../../../decorators/field.decorators.ts';
+import {
+  StringField,
+  StringFieldOptional,
+} from '../../../decorators/field.decorators.ts';
 
 export class FollowUserDto {
-  @StringField()
-  sourceUserId!: string;
+  @StringFieldOptional()
+  sourceUserId?: string;
 
   @StringField()
   targetUserId!: string;

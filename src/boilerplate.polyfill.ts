@@ -139,10 +139,7 @@ SelectQueryBuilder.prototype.cursorPaginate = async function (
   const { limit = 10 } = pageOptionsDto;
 
   this.take(limit + 1);
-
   const data = await this.getMany();
-
-  const total = await this.getCount();
 
   const hasNextPage = data.length > limit;
   if (hasNextPage) {
@@ -162,7 +159,6 @@ SelectQueryBuilder.prototype.cursorPaginate = async function (
   return {
     data,
     pagination: {
-      total,
       hasNextPage,
       nextCursor,
     },

@@ -6,6 +6,7 @@ import { CreateCommentDto } from './dtos/create-comment.dto';
 import { UpdateCommentDto } from './dtos/update-comment.dto';
 import { GetCommentDto } from './dtos/get-comment.dto';
 import { PostService } from '../post/post.service';
+import { PageOptionsDto } from 'common/dto/page-options.dto';
 
 @Injectable()
 export class CommentService {
@@ -31,6 +32,13 @@ export class CommentService {
     userId: string,
   ): Promise<GetCommentCursor> {
     return await this.commentRepository.getByOptions(query, userId);
+  }
+
+  async getWithOffsetPagination(
+    query: GetCommentDto & PageOptionsDto,
+    userId: string,
+  ): Promise<any> {
+    return await this.commentRepository.getWithOffsetPagination(query, userId);
   }
 
   async countCommentsByOptions(query: {
