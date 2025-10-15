@@ -5,10 +5,7 @@ import {
 
 export class CreatePostDto {
   @StringField()
-  title!: string;
-
-  @StringField()
-  description!: string;
+  content!: string;
 
   @StringFieldOptional()
   image?: string;

@@ -19,7 +19,10 @@ import { TranslationService } from '../../shared/services/translation.service.ts
 import { UsersPageOptionsDto } from './dtos/users-page-options.dto.ts';
 import { UserEntity } from './user.entity.ts';
 import { UserService } from './user.service.ts';
-import { ProfileTransformer } from '../../transformer/user.transformer.ts';
+import {
+  ProfileTransformer,
+  SuggestUserTransformer,
+} from '../../transformer/user.transformer.ts';
 import { UpdateUserDto } from './dtos/user-update.dto.ts';
 
 @Controller('users')
@@ -51,6 +54,16 @@ export class UserController {
     pageOptionsDto: UsersPageOptionsDto,
   ): Promise<PageDto<UserEntity>> {
     return this.userService.getUsers(pageOptionsDto);
+  }
+
+  @Get('suggests')
+  @Auth([RoleType.USER])
+  async findSuggestedFollowers(
+    @AuthUser() user: UserEntity,
+  ): Promise<SuggestUserTransformer> {
+    const entity = await this.userService.findSuggestedFollowers(user.id);
+
+    return new SuggestUserTransformer(entity);
   }
 
   @Get(':id')

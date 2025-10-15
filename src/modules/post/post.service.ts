@@ -13,28 +13,31 @@ import type { PostDto } from './dtos/post.dto.ts';
 import type { PageDto } from '../../common/dto/page.dto.ts';
 import type { UpdatePostDto } from './dtos/update-post.dto.ts';
 import type { PostPageOptionsDto } from './dtos/post-page-options.dto.ts';
+import { LikeRepository } from '../like/like.repository.ts';
 
 @Injectable()
 export class PostService {
   constructor(
     private postRepository: PostRepository,
-    @InjectQueue('post-queue') private postQueue: Queue,
+    private likeRepository: LikeRepository,
+    @InjectQueue('post-queue')
+    private postQueue: Queue,
   ) {}
 
   @Transactional()
   async createPost(
-    user_id: string,
+    userId: string,
     createPostDto: CreatePostDto,
   ): Promise<PostEntity> {
     const entityPost = await this.postRepository.createPost(
-      user_id,
+      userId,
       createPostDto,
     );
 
     await this.postQueue.add(
       'fan-out-post',
       {
-        userId: user_id,
+        userId,
         postId: entityPost.id,
       },
       {
@@ -52,9 +55,9 @@ export class PostService {
 
   async getAllPost(
     postPageOptionsDto: PostPageOptionsDto,
-    user_id: string,
+    userId: string,
   ): Promise<PageDto<PostDto>> {
-    return await this.postRepository.getAllPost(postPageOptionsDto, user_id);
+    return await this.postRepository.getAllPost(postPageOptionsDto, userId);
   }
 
   async findOne(
@@ -63,15 +66,24 @@ export class PostService {
     return await this.postRepository.findOne(optionsDto);
   }
 
-  async getSinglePost(id: string): Promise<PostEntity> {
-    const postEntity = await this.postRepository.getSinglePost(id);
+  async getSinglePost(
+    postId: string,
+    userId: string,
+  ): Promise<PostEntity & { isLiked: boolean }> {
+    const postEntity = await this.postRepository.getSinglePost(postId);
+
+    const userLiked = await this.likeRepository.isLiked({ userId, postId });
 
     if (!postEntity) {
       throw new PostNotFoundException();
     }
 
-    return postEntity;
+    return {
+      ...postEntity,
+      isLiked: !!userLiked,
+    };
   }
+
   async getByUsername(
     postPageOptionsDto: PostPageOptionsDto,
     username: string,

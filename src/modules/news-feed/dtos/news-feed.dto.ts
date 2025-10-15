@@ -5,16 +5,16 @@ import type { AbstractEntity } from '../../../common/abstract.entity.ts';
 
 export class NewsFeedDto extends AbstractDto {
   @UUIDField()
-  user_id!: string;
+  userId!: string;
 
   @UUIDField()
-  post_id!: string;
+  postId!: string;
 
   constructor(newsFeed: AbstractEntity & NewsFeedEntity) {
     super(newsFeed);
     this.id = newsFeed.id;
-    this.post_id = newsFeed.post_id;
-    this.user_id = newsFeed.user_id;
+    this.postId = newsFeed.postId;
+    this.userId = newsFeed.userId;
     this.createdAt = newsFeed.createdAt;
     this.updatedAt = newsFeed.updatedAt;
   }

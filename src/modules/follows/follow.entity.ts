@@ -14,13 +14,13 @@ import { AbstractEntity } from '../../common/abstract.entity.ts';
 
 @Entity({ name: 'follows' })
 @UseDto(FollowRelationDto)
-@Unique(['source_user_id', 'target_user_id'])
+@Unique(['sourceUserId', 'targetUserId'])
 export class FollowEntity extends AbstractEntity {
-  @Column({ type: 'char' })
-  source_user_id!: string;
+  @Column({ name: 'source_user_id', type: 'char' })
+  sourceUserId!: string;
 
-  @Column({ type: 'char' })
-  target_user_id!: string;
+  @Column({ name: 'target_user_id', type: 'char' })
+  targetUserId!: string;
 
   @OneToMany(() => UserEntity, (entity) => entity.followers, {
     onDelete: 'CASCADE',

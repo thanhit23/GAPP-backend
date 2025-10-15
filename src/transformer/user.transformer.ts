@@ -7,3 +7,11 @@ export class ProfileTransformer extends BaseTransformer {
     return { data };
   }
 }
+
+export class SuggestUserTransformer extends BaseTransformer {
+  async data() {
+    const data = await this.resource;
+
+    return { data };
+  }
+}

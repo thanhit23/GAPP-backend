@@ -1,10 +1,11 @@
 import Redis from 'ioredis';
-import { Module, Logger } from '@nestjs/common';
+import { Module, Logger, Global } from '@nestjs/common';
 
 import { ApiConfigService } from '../../shared/services/api-config.service.ts';
 
 export const REDIS_CLIENT = 'REDIS_CLIENT';
 
+@Global()
 @Module({
   providers: [
     {

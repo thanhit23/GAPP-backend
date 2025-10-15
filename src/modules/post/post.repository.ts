@@ -36,12 +36,12 @@ export class PostRepository {
 
   async getAllPost(
     postPageOptionsDto: PostPageOptionsDto,
-    user_id: string,
+    userId: string,
   ): Promise<PageDto<PostDto>> {
     const queryBuilder = this.postRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.user', 'user')
-      .where('post.user_id = :user_id', { user_id })
+      .where('post.userId = :userId', { userId })
       .select(['post', 'user.avatar', 'user.username', 'user.id', 'user.name'])
       .groupBy('post.id, user.id');
 
@@ -53,7 +53,16 @@ export class PostRepository {
   async getSinglePost(id: string): Promise<PostEntity | null> {
     const queryBuilder = this.postRepository
       .createQueryBuilder('post')
-      .where('post.id = :id', { id });
+      .where('post.id = :id', { id })
+      .innerJoinAndSelect('post.user', 'user')
+      .select([
+        'post',
+        'user.avatar',
+        'user.name',
+        'user.username',
+        'user.id',
+        'user.name',
+      ]);
 
     return await queryBuilder.getOne();
   }
@@ -73,7 +82,7 @@ export class PostRepository {
     const queryBuilder = this.postRepository
       .createQueryBuilder('post')
       .leftJoinAndSelect('post.user', 'user')
-      .where('post.user_id = :user_id', { user_id: user.id })
+      .where('post.userId = :userId', { userId: user.id })
       .select(['post', 'user.avatar', 'user.username', 'user.id', 'user.name'])
       .groupBy('post.id, user.id');
 

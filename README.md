@@ -38,6 +38,8 @@ And, enjoy :)
 ```bash
 # 4. Run development server and open http://localhost:3000
 yarn start:dev
+OR
+yarn nest:start:dev
 
 # 5. Read the documentation linked below for "Setup and development".
 ```

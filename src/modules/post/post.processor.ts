@@ -19,7 +19,7 @@ export class PostProcessor {
     const followers = await this.followRepository.getFollowing(userId);
 
     for (const follower of followers) {
-      const newsFeedKey = `news_feed:${follower.source_user_id}:${postId}`;
+      const newsFeedKey = `news_feed:${follower.sourceUserId}:${postId}`;
 
       await this.redisClient.hset(newsFeedKey, {
         time: dayjs().format('YYYY-MM-DD HH-mm'),
