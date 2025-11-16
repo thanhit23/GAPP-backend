@@ -7,7 +7,10 @@ import type { PostEntity } from '../post.entity.ts';
 
 export class PostDto extends AbstractDto {
   @StringField()
-  content!: string;
+  title!: string;
+
+  @StringField()
+  description!: string;
 
   @StringFieldOptional()
   image!: string;
@@ -15,7 +18,8 @@ export class PostDto extends AbstractDto {
   constructor(post: PostEntity) {
     super(post);
     this.id = post.id;
-    this.content = post.content;
+    this.title = post.title || '';
+    this.description = post.description || '';
     this.image = post?.image || '';
     this.createdAt = post.createdAt;
     this.updatedAt = post.updatedAt;

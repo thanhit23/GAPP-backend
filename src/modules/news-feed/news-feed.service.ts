@@ -1,5 +1,6 @@
 import Redis from 'ioredis';
 import { Inject, Injectable } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 import { NewsFeedEntity } from './news-feed.entity.ts';
 import { NewsFeedRepository } from './news-feed.repository.ts';
@@ -111,5 +112,26 @@ export class NewsFeedService {
     await this.newsFeedRepository.deleteNewsFeed(entity);
 
     return true;
+  }
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  async cleanupExpiredKeys() {
+    console.log('Running newfeed cleanup job...');
+
+    const pattern = 'new_feed:*';
+    const keys = await this.redisClient.keys(pattern);
+
+    let removedCount = 0;
+
+    for (const key of keys) {
+      const ttl = await this.redisClient.ttl(key);
+
+      if (ttl === -1) {
+        await this.redisClient.del(key);
+        removedCount++;
+      }
+    }
+
+    console.log(`Removed ${removedCount} expired keys`);
   }
 }

@@ -16,7 +16,10 @@ export class PostEntity extends AbstractEntity {
   userId!: string;
 
   @Column({ nullable: true, type: 'varchar' })
-  content!: string;
+  title!: string;
+
+  @Column({ nullable: true, type: 'varchar' })
+  description!: string;
 
   @Column({ nullable: true, type: 'varchar' })
   image!: string;
