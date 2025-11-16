@@ -24,7 +24,7 @@ export class PostProcessor {
       await this.redisClient.hset(newsFeedKey, {
         time: dayjs().format('YYYY-MM-DD HH-mm'),
       });
-      await this.redisClient.expire(newsFeedKey, 2 * 24 * 60 * 60);
+      await this.redisClient.expire(newsFeedKey, 1 * 24 * 60 * 60);
     }
   }
 }

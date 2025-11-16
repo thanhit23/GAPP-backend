@@ -2,7 +2,10 @@ import { StringFieldOptional } from '../../../decorators/field.decorators.ts';
 
 export class UpdatePostDto {
   @StringFieldOptional()
-  content!: string;
+  title!: string;
+
+  @StringFieldOptional()
+  description?: string;
 
   @StringFieldOptional()
   totalLikes?: number;

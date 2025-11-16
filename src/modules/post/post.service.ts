@@ -34,21 +34,10 @@ export class PostService {
       createPostDto,
     );
 
-    await this.postQueue.add(
-      'fan-out-post',
-      {
-        userId,
-        postId: entityPost.id,
-      },
-      {
-        removeOnComplete: {
-          age: 24 * 60 * 60,
-        },
-        removeOnFail: {
-          age: 24 * 60 * 60,
-        },
-      },
-    );
+    await this.postQueue.add('fan-out-post', {
+      userId,
+      postId: entityPost.id,
+    });
 
     return entityPost;
   }

@@ -6,6 +6,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClsModule } from 'nestjs-cls';
 import { BullModule } from '@nestjs/bull';
+import { ScheduleModule } from '@nestjs/schedule';
 import {
   AcceptLanguageResolver,
   HeaderResolver,
@@ -37,6 +38,7 @@ import { HealthCheckerModule } from './modules/health-checker/health-checker.mod
     CommentModule,
     NewsFeedModule,
     RedisModule,
+    ScheduleModule.forRoot(),
     ClsModule.forRoot({
       global: true,
       middleware: {
